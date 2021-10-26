@@ -75,6 +75,7 @@
 
 <script>
 export default {
+  name: "Header",
   data() {
     return {
       dialogVisible: false,
@@ -105,7 +106,7 @@ export default {
     handleModal: (tag) => {
       console.log(tag);
       if (tag) {
-        this.$refs['passwordForm'].validate((valid) => {
+        this.$refs["passwordForm"].validate((valid) => {
           if (valid) {
             alert("修改成功");
           } else {
