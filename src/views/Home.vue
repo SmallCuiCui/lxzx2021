@@ -1,10 +1,10 @@
 <template>
   <el-container class="home_container">
-    <el-col :span="4" style="hight: 100%">
+    <el-col :span="3" style="hight: 100%">
       <Aside />
     </el-col>
 
-    <el-col :span="20">
+    <el-col :span="21">
       <el-container class="home_container_right">
         <el-header>
           <Header></Header>

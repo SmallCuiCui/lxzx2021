@@ -2,7 +2,7 @@
   <div class="header">
     <div class="header_top">
       <div class="header_top_notice">
-        <i class="el-icon-arrow-down"></i>
+        <i class="el-icon-message-solid"></i>
       </div>
 
       <div class="header_top_userInfo">
@@ -26,36 +26,55 @@
           width="30%"
           destroy-on-close
         >
-          <el-form :model="password" :rules="rules" ref="passwordForm">
-            <el-form-item label="原始密码" :label-width="formLabelWidth">
+          <el-form
+            :model="passwordForm"
+            :rules="rules"
+            ref="passwordForm"
+            class="demo-ruleForm"
+          >
+            <el-form-item
+              label="原始密码"
+              :label-width="formLabelWidth"
+              prop="pass"
+            >
               <el-input
-                v-model="password.orginPassword"
+                v-model="passwordForm.orginPassword"
                 show-password
                 autocomplete="off"
                 placeholder="请输入原始密码"
               ></el-input>
             </el-form-item>
-            <el-form-item label="修改密码" :label-width="formLabelWidth">
+
+            <el-form-item
+              label="修改密码"
+              :label-width="formLabelWidth"
+              prop="pass"
+            >
               <el-input
-                v-model="password.newPassword"
+                v-model="passwordForm.newPassword"
                 show-password
                 autocomplete="off"
                 placeholder="请输入修改密码"
               ></el-input>
             </el-form-item>
-            <el-form-item label="确认密码" :label-width="formLabelWidth">
+
+            <el-form-item
+              label="确认密码"
+              :label-width="formLabelWidth"
+              prop="checkPass"
+            >
               <el-input
-                v-model="password.confPassword"
+                v-model="passwordForm.confPassword"
                 show-password
                 autocomplete="off"
-                placeholder="请再次输入修改密码"
+                placeholder="请输入确认密码"
               ></el-input>
             </el-form-item>
           </el-form>
           <template #footer>
             <span class="dialog-footer">
-              <el-button @click="handleModal(false)">取消</el-button>
-              <el-button type="primary" @click="handleModal(true)"
+              <el-button @click="resetForm('passwordForm')">取消</el-button>
+              <el-button type="primary" @click="handleModal('passwordForm')"
                 >确认</el-button
               >
             </span>
@@ -63,7 +82,9 @@
         </el-dialog>
       </div>
 
-      <div class="header_top_out">退出登录</div>
+      <div class="header_top_out">
+        <span @click="loginOut">退出登录</span>
+      </div>
     </div>
 
     <div class="header_bottom">
@@ -74,50 +95,63 @@
 </template>
 
 <script>
+import { ElMessage } from "element-plus";
+
 export default {
   name: "Header",
   data() {
     return {
       dialogVisible: false,
-      password: {
+      passwordForm: {
         orginPassword: "",
         newPassword: "",
         confPassword: "",
       },
       formLabelWidth: "80px",
       rules: {
-        password: [
+        pass: [
+          { required: true, message: "请输入密码", trigger: "blur" },
+          { min: 6, max: 12, message: "长度应该在6至12位", trigger: "blur" },
+        ],
+        checkPass: [
           {
             required: true,
-            message: "请输入密码",
+            message: "两次输入密码不一致",
             trigger: "blur",
-          },
-          {
-            min: 6,
-            max: 12,
-            message: "长度应该在6至12位",
-            trigger: "blur",
+            validator: (rule, value) => value === this.password.newPassword,
           },
         ],
       },
     };
   },
   methods: {
-    handleModal: (tag) => {
-      console.log(tag);
-      if (tag) {
-        this.$refs["passwordForm"].validate((valid) => {
-          if (valid) {
-            alert("修改成功");
-          } else {
-            console.log("数据验证不通过");
-            return false;
-          }
-        });
-      } else {
-        this.$refs["passwordForm"].resetFields();
-        this.data.dialogVisible = false;
-      }
+    handleModal(formName) {
+      this.$refs[formName].validate((valid) => {
+        console.log(valid);
+        if (valid) {
+          ElMessage({
+            message: "密码修改成功",
+            type: "success",
+            duration: 2000,
+          });
+          this.dialogVisible = false;
+        } else {
+          console.log("数据验证不通过");
+          return false;
+        }
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName].resetFields();
+      this.dialogVisible = false;
+    },
+    loginOut() {
+        this.$confirm("是否确认退出登录", "退出", {
+          'cancel-button-text': "取消",
+          'confirm-button-text': "确认",
+        }).then(()=>{
+          this.$router.push("/login");
+        })
     },
   },
 };
@@ -126,6 +160,8 @@ export default {
 <style scoped lang="scss">
 .header {
   background: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
 
   &_top {
     height: 50px;
@@ -147,12 +183,13 @@ export default {
     }
 
     &_out {
-      font-size: 16px;
+      font-size: 14px;
       padding: 0 30px;
       border-left: 1px solid #bbbbbb;
       margin-right: 10px;
       height: 30px;
       line-height: 30px;
+      cursor: pointer;
     }
 
     .el-dropdown-link {
@@ -173,6 +210,7 @@ export default {
     padding-right: 40px;
     padding-left: 20px;
     background: #f2f6fc;
+    font-family: Arial, Helvetica, sans-serif;
   }
 }
 </style>

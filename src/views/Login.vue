@@ -47,8 +47,7 @@
 </template>
 
 <script>
-import avatar from "@element-plus/icons/lib";
-import lock from "@element-plus/icons/lib";
+import {avatar, lock} from 'element-plus';
 
 export default {
   name: "Login",
@@ -94,10 +93,9 @@ export default {
   },
   methods: {
     submitForm(formName) {
-      console.log(this.$router);
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert("submit!");
+           console.log("submit!");
           setTimeout(() => {
             this.$router.push("/");
           }, 1000);
