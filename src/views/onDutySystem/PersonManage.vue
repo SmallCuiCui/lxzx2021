@@ -8,7 +8,11 @@
         借调：<span>{{ personSituaton.jiediao }}</span>
       </el-col>
       <el-col :span="3">
-        <img src="@/assets/images/user_add.png" @click="addVisible = true" style="cursor: pointer;" />
+        <img
+          src="@/assets/images/user_add.png"
+          @click="addVisible = true"
+          style="cursor: pointer"
+        />
       </el-col>
     </el-row>
 
@@ -48,7 +52,7 @@
           <el-col :span="12">
             <el-form-item label="电话号码" label-width="100px">
               <el-input
-                v-model="editForm.userPhone"
+                v-model="editForm.phoneNum"
                 autocomplete="off"
               ></el-input>
             </el-form-item>
@@ -172,38 +176,36 @@
         </el-col>
         <el-col :span="20" class="PersonManage_detail_cellBlock">
           <el-scrollbar :always="true">
-            <div style="display: flex;">
+            <div style="display: flex">
               <div
-              class="PersonManage_detail_cellBlock_cell"
-              v-for="(item, index) in detailList.list2"
-              :key="index"
-            >
-              <h4>{{ item.discript }}</h4>
-              <p>{{ item.value }}</p>
+                class="PersonManage_detail_cellBlock_cell"
+                v-for="(item, index) in detailList.list2"
+                :key="index"
+              >
+                <h4>{{ item.discript }}</h4>
+                <p>{{ item.value }}</p>
+              </div>
             </div>
-            </div>
-            
           </el-scrollbar>
         </el-col>
       </div>
 
       <div class="PersonManage_detail_row">
         <el-col :span="4" class="PersonManage_detail_head2">
-          <span>值班情况(24天)<br/>工  作  日：4周<br/>非工作日：2天</span>
+          <span>值班情况(24天)<br />工 作 日：4周<br />非工作日：2天</span>
         </el-col>
         <el-col :span="20" class="PersonManage_detail_cellBlock">
           <el-scrollbar :always="true">
-            <div style="display: flex;">
+            <div style="display: flex">
               <div
-              class="PersonManage_detail_cellBlock_cell"
-              v-for="(item, index) in detailList.list3"
-              :key="index"
-            >
-              <h4>{{ item.discript }}</h4>
-              <p>{{ item.value }}</p>
+                class="PersonManage_detail_cellBlock_cell"
+                v-for="(item, index) in detailList.list3"
+                :key="index"
+              >
+                <h4>{{ item.discript }}</h4>
+                <p>{{ item.value }}</p>
+              </div>
             </div>
-            </div>
-            
           </el-scrollbar>
         </el-col>
       </div>
@@ -218,61 +220,104 @@
     </el-dialog>
 
     <el-dialog
-          v-model="addVisible"
-          title="新增人员"
-          width="30%"
-          destroy-on-close
-        >
-          <el-form
-            :model="addUserForm"
-            ref="addUserForm"
-            :rules="addRules"
-          >
-            <el-form-item
-              label="用户姓名"
-              label-width="100px"
-              prop="checkName"
-            >
+      v-model="addVisible"
+      title="新增人员"
+      width="40%"
+      destroy-on-close
+    >
+      <el-form :model="addUserForm" ref="addUserForm" :rules="addRules" style="margin-right: 20px">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="用户姓名" label-width="100px" prop="userName">
               <el-input
                 v-model="addUserForm.userName"
                 autocomplete="off"
                 placeholder="请输入用户姓名"
               ></el-input>
             </el-form-item>
-
-            <el-form-item
-              label="用户账号"
-              label-width="100px"
-              prop="checkCode"
-            >
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="用户账号" label-width="100px" prop="userCode">
               <el-input
                 v-model="addUserForm.userCode"
                 autocomplete="off"
                 placeholder="请输入用户账号"
               ></el-input>
             </el-form-item>
+          </el-col>
+        </el-row>
 
-            <el-form-item
-              label="联系电话"
-              label-width="100px"
-              prop="checkPhone"
-            >
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="联系电话" label-width="100px" prop="phoneNum">
               <el-input
-                v-model="addUserForm.userPhone"
+                v-model="addUserForm.phoneNum"
                 autocomplete="off"
                 placeholder="请输入联系电话"
               ></el-input>
             </el-form-item>
-          </el-form>
-          <template #footer>
-            <span class="dialog-footer">
-              <el-button @click="resetAddForm('addUserForm')">取消</el-button>
-              <el-button type="primary" @click="handleAddModal('addUserForm')"
-                >确认</el-button
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="人员类别" label-width="100px">
+              <el-select
+                v-model="addUserForm.position"
+                value-key="value"
+                placeholder="请选择"
               >
-            </span>
-          </template>
-        </el-dialog>
+                <el-option
+                  v-for="item in positionList"
+                  :key="item.value"
+                  :label="item.name"
+                  :value="item"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row>
+          <el-col :span="12">
+            <el-form-item
+              label="所属科室"
+              label-width="100px"
+              prop="department"
+            >
+              <el-select
+                v-model="addUserForm.department"
+                value-key="value"
+                placeholder="请选择"
+              >
+                <el-option
+                  v-for="item in departmentList"
+                  :key="item.value"
+                  :label="item.name"
+                  :value="item"
+                >
+                </el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="科室管理员" label-width="100px">
+              <el-radio-group v-model="addUserForm.limitedId">
+                <el-radio :label="'NORMAL'">否</el-radio>
+                <el-radio :label="'MANAGE'">是</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="resetAddForm('addUserForm')">取消</el-button>
+          <el-button type="primary" @click="handleAddModal('addUserForm')"
+            >确认</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -292,7 +337,7 @@ export default {
       editForm: {
         userName: "王小虎",
         userCode: "admin",
-        userPhone: "18281373737",
+        phoneNum: "18281373737",
         status: "zaiwei",
         startDate: "",
         endDate: "",
@@ -300,15 +345,20 @@ export default {
       addUserForm: {
         userName: "",
         userCode: "",
-        userPhone: "",
+        phoneNum: "",
+        department: {},
+        limitedId: "NORMAL",
+        position: {},
       },
+      departmentList: [],
+      positionList: [],
       tableData: [
         {
           index: 1,
           userName: "王小虎",
           userPhone: "18281575657",
           status: "在位",
-          statistics: "请假天数：2天、休假天数：10天、假期剩余：0"
+          statistics: "请假天数：2天、休假天数：10天、假期剩余：0",
         },
         {
           index: 2,
@@ -349,20 +399,36 @@ export default {
         ],
       },
       addRules: {
-        checkName: [
+        userName: [
           { required: true, message: "请输入姓名", trigger: "blur" },
           { min: 2, message: "长度应该大于两位", trigger: "blur" },
         ],
-        checkCode: [
+        userCode: [
           { required: true, message: "请输入用户账户", trigger: "blur" },
-          { min: 4, max: 12, message: "长度应该在4至12位", trigger: "blur"},
+          { min: 4, max: 12, message: "长度应该在4至12位", trigger: "blur" },
         ],
-        checkPhone: [
-          { required: true, message: "请输入联系方式", trigger: "blur", },
+        phoneNum: [
+          { required: true, message: "请输入联系方式", trigger: "blur" },
           { min: 6, max: 11, message: "请输入正确的电话号码", trigger: "blur" },
         ],
+        department: [{ required: true, message: "请选择", trigger: "blur" }],
       },
     };
+  },
+  created() {
+    this.$http.getDepartment().then((res) => {
+      if (res.code == 200) {
+        this.departmentList = res.data;
+        this.addUserForm.department = res.data[0];
+      }
+    });
+
+    this.$http.getPosition().then((res) => {
+      if (res.code == 200) {
+        this.positionList = res.data;
+        this.addUserForm.position = res.data[0];
+      }
+    });
   },
   methods: {
     handleEdit(index, row) {
@@ -380,10 +446,7 @@ export default {
     publishEditForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert("submit!");
-        } else {
-          console.log("error submit!!");
-          return false;
+          console.log("tijiao");
         }
       });
     },
@@ -393,14 +456,29 @@ export default {
     },
     handleAddModal(formName) {
       this.$refs[formName].validate((valid) => {
-        console.log(valid);
         if (valid) {
-          this.$message({
-            message: "添加用户成功",
-            type: "success",
-            duration: 2000,
+          console.log(this.addUserForm);
+          this.$http.addUser({ ...this.addUserForm,
+          deptId:this.addUserForm.department.value,
+          deptName: this.addUserForm.department.name,
+          positionId: this.addUserForm.position.value,
+          positionName: this.addUserForm.position.name}).then((res) => {
+            console.log(res);
+            if (res.code == 200) {
+              this.$message({
+                message: "添加用户成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.resetAddForm();
+            } else {
+              this.$message({
+                message: res.message,
+                type: "error",
+                duration: 2000,
+              });
+            }
           });
-          this.dialogVisible = false;
         } else {
           console.log("数据验证不通过");
           return false;
@@ -445,8 +523,6 @@ export default {
       border-top: 1px solid #e0e3ea;
       padding-left: 10px;
       width: 16.6%;
-
-      
     }
 
     &_head2 {
@@ -457,7 +533,7 @@ export default {
       border-top: 1px solid #e0e3ea;
       padding-left: 10px;
       width: 16.6%;
-      br{
+      br {
         height: 1px;
       }
     }
@@ -488,8 +564,6 @@ export default {
           border-top: 1px solid #e0e3ea;
           text-align: center;
         }
-
-        
       }
     }
   }

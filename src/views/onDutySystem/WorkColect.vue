@@ -33,7 +33,7 @@
     </el-row>
 
     <div class="workColect_noDanwei">
-      <el-scrollbar class="workColect_noDanwei_box" height="400px">
+      <el-scrollbar class="workColect_noDanwei_box">
         <el-row
           class="workColect_noDanwei_item"
           v-for="(item, index) in workList"
@@ -220,6 +220,48 @@ export default {
             },
           ],
         },
+        {
+          workDate: "2021.10.19(当日)",
+          danweiContents: [
+            {
+              danWeiName: "单位1",
+              content: "内容1",
+            },
+            {
+              danWeiName: "单位2",
+              content: "内容3",
+            },
+            {
+              danWeiName: "单位4",
+              content: "内容4",
+            },
+            {
+              danWeiName: "单位3",
+              content: "内容3",
+            },
+          ],
+        },
+        {
+          workDate: "2021.10.19(当日)",
+          danweiContents: [
+            {
+              danWeiName: "单位1",
+              content: "内容1",
+            },
+            {
+              danWeiName: "单位2",
+              content: "内容3",
+            },
+            {
+              danWeiName: "单位4",
+              content: "内容4",
+            },
+            {
+              danWeiName: "单位3",
+              content: "内容3",
+            },
+          ],
+        },
       ],
       danweiList: [
         {
@@ -268,6 +310,7 @@ export default {
 
   &_fillter {
     padding-bottom: 10px;
+    height: 50px;
     &_select {
       margin-left: 10px;
       width: 100px;
@@ -280,6 +323,7 @@ export default {
 
   &_noDanwei {
     flex: 1;
+    overflow: hidden;
 
     &_box {
       height: 100%;

@@ -9,6 +9,8 @@ import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
 import './assets/css/global.css'
 
+import * as ajax from "@/request"
+
 // 引入 echarts 核心模块，核心模块提供了 echarts 使用必须要的接口。
 import * as echarts from 'echarts/core';
 // 引入柱状图图表，图表后缀都为 Chart
@@ -47,5 +49,6 @@ const app = createApp(App);
 
 // vue3 给原型上挂载属性
 app.config.globalProperties.$echarts = echarts;
+app.config.globalProperties.$http = ajax;
 
 app.use(router).use(ElementPlus, {locale: zhCn,}).mount('#app')

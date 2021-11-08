@@ -15,7 +15,7 @@
 
         <el-form ref="ruleForm" :model="ruleForm" :rules="rules">
           <el-form-item prop="userName">
-            <el-icon color="#3A62D7" :size="24"><avatar /></el-icon>
+            <i class="el-icon-user"></i>
             <el-input
               v-model="ruleForm.userName"
               placeholder="请输入用户名"
@@ -23,9 +23,10 @@
           </el-form-item>
 
           <el-form-item prop="password">
-            <el-icon color="#3A62D7" :size="24"><lock /></el-icon>
+            <i class="el-icon-lock" ></i>
             <el-input
               v-model="ruleForm.password"
+              type="password"
               placeholder="请输入密码"
             ></el-input>
           </el-form-item>
@@ -47,7 +48,6 @@
 </template>
 
 <script>
-import {avatar, lock} from 'element-plus';
 
 export default {
   name: "Login",
@@ -78,7 +78,7 @@ export default {
             trigger: "blur",
           },
           {
-            min: 6,
+            min: 5,
             max: 12,
             message: "密码长度在6到12之间",
             trigger: "blur",
@@ -87,24 +87,49 @@ export default {
       },
     };
   },
-  components: {
-    avatar,
-    lock,
+  mounted() {
+    this.enterKeyup();
+  },
+  unmounted() {
+    this.enterKeyupDestroyed();
   },
   methods: {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-           console.log("submit!");
-          setTimeout(() => {
-            this.$router.push("/");
-          }, 1000);
+           console.log("submit!", this.ruleForm);
+           this.$http.postLogin({
+             userCode: this.ruleForm.userName,
+             password: this.ruleForm.password}).then(resp => {
+               if(resp.code == 200) {
+                 this.$message.success(resp.message, 1000);
+                //  存储后端传递过来的token信息。
+                 localStorage.setItem('Authorization', resp.data.token);
+                 localStorage.setItem('userInfo', JSON.stringify(resp.data.userInfo)); 
+                 this.$router.push("/personManage")
+               } else {
+                 this.$message(resp.message, 2000);
+               }
+             })
+          
         } else {
           console.log("error submit!!");
           return false;
         }
       });
     },
+    enterKeyup() {
+      document.addEventListener("keyup", this.enterKey)
+    },
+    enterKeyupDestroyed() {
+        document.removeEventListener("keyup", this.enterKey);
+    },
+    enterKey(event) {
+      const code = event.keyCode ? event.keyCode : event.which ? event.which : event.charCode;
+      if(code == 13) {
+        this.submitForm('ruleForm');
+      }
+    }
   },
 };
 </script>
@@ -149,6 +174,11 @@ export default {
     .form_right {
       flex: 1;
       padding: 40px;
+
+      i{
+        font-size: 20px;
+        color: #409eff;
+      }
 
       .title_container {
         width: 100%;

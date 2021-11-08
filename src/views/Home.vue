@@ -61,6 +61,10 @@ export default {
         width: 100%;
         height: 100%;
       }
+
+      .el-card__body {
+          height: 100%;
+        }
     }
   }
 }

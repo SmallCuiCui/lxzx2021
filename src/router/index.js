@@ -56,12 +56,32 @@ const routes = [
     name: 'Login',
     component: () => import('../views/Login.vue'),
     meta:{title: "登录"}
+  },
+  {
+    path: '/:pathMatch(.*)',
+    name: 'NotFound',
+    component: () => import('../views/NotFound.vue'),
+    meta:{title: "404"}
   }
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
+})
+
+// 全局前置守卫，判断用户是否登录
+router.beforeEach((to, from, next) => {
+  if(to.path == "/login") {
+    next();
+  } else {
+    let token = localStorage.getItem("Authorization");
+    if(token === "" || token === null) {
+      next("/login")
+    } else {
+      next();
+    }
+  }
 })
 
 export default router
