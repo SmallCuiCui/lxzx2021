@@ -19,7 +19,7 @@
             <el-input
               v-model="ruleForm.userName"
               placeholder="请输入用户名"
-            ></el-input>
+            ></el-input>  
           </el-form-item>
 
           <el-form-item prop="password">
@@ -48,7 +48,6 @@
 </template>
 
 <script>
-
 export default {
   name: "Login",
   data() {
@@ -107,8 +106,6 @@ export default {
                  localStorage.setItem('Authorization', resp.data.token);
                  localStorage.setItem('userInfo', JSON.stringify(resp.data.userInfo)); 
                  this.$router.push("/personManage")
-               } else {
-                 this.$message(resp.message, 2000);
                }
              })
           
@@ -225,4 +222,5 @@ export default {
     }
   }
 }
+
 </style>

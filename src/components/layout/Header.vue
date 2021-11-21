@@ -8,8 +8,7 @@
       <div class="header_top_userInfo">
         <el-dropdown>
           <span class="el-dropdown-link">
-            {{ userInfo.userCode
-            }}<i class="el-icon-arrow-down el-icon--right"></i>
+            {{ userInfo.userName }}<i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
@@ -178,14 +177,14 @@ export default {
       });
     },
     resetForm(formName) {
-      console.log("重置密码");
       this.$refs[formName].resetFields();
       this.dialogVisible = false;
     },
     loginOut() {
       this.$confirm("是否确认退出登录", "退出", {
-        "cancel-button-text": "取消",
-        "confirm-button-text": "确认",
+        cancelButtonText: "取消",
+        confirmButtonText: "确认",
+        type: "warning",
       }).then(() => {
         // 清除token信息
         this.$http.loginOut().then((res) => {

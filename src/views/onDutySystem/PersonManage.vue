@@ -17,11 +17,20 @@
     </el-row>
 
     <el-row style="margin-top: 20px">
-      <el-table :data="tableData" border style="width: 100%">
-        <el-table-column prop="index" label="序号" width="80" />
+      <el-table :data="tableData" border style="width: 100%" :default-sort="{ prop: 'createTime', order: 'descending' }">
+        <el-table-column prop="index" label="序号" width="80">
+          <template #default="scope">
+            <span>{{(pageInfo.currentPage - 1) * pageInfo.pageSize + scope.$index + 1}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="userName" label="姓名" width="160" />
-        <el-table-column prop="userPhone" label="联系电话" width="180" />
-        <el-table-column prop="status" label="在位状态" width="120" />
+        <el-table-column prop="userCode" label="账号" width="160" />
+        <el-table-column prop="phoneNum" label="联系电话" width="180" />
+        <el-table-column prop="status" label="在位状态" width="120">
+          <template #default="scope">
+            <span>{{ statusMap(scope.row.status) }}</span>
+          </template>
+        </el-table-column>
 
         <el-table-column label="操作" width="180">
           <template #default="scope">
@@ -35,6 +44,17 @@
         </el-table-column>
         <el-table-column prop="statistics" label="统计" />
       </el-table>
+      <el-pagination
+        background
+        layout="prev, pager, next, total"
+        :total="pageInfo.total"
+        :current-page="pageInfo.currentPage"
+        :page-size="pageInfo.pageSize"
+        @current-change="handleCurrentChange"
+        
+        style="margin-top: 15px"
+      >
+      </el-pagination>
     </el-row>
 
     <el-dialog v-model="editVisible" title="人员管理">
@@ -225,7 +245,12 @@
       width="40%"
       destroy-on-close
     >
-      <el-form :model="addUserForm" ref="addUserForm" :rules="addRules" style="margin-right: 20px">
+      <el-form
+        :model="addUserForm"
+        ref="addUserForm"
+        :rules="addRules"
+        style="margin-right: 20px"
+      >
         <el-row>
           <el-col :span="12">
             <el-form-item label="用户姓名" label-width="100px" prop="userName">
@@ -322,6 +347,7 @@
 </template>
 
 <script>
+import { statusMixin } from "@/assets/js/mixins.js";
 export default {
   name: "PersonManage",
   data() {
@@ -352,27 +378,12 @@ export default {
       },
       departmentList: [],
       positionList: [],
-      tableData: [
-        {
-          index: 1,
-          userName: "王小虎",
-          userPhone: "18281575657",
-          status: "在位",
-          statistics: "请假天数：2天、休假天数：10天、假期剩余：0",
-        },
-        {
-          index: 2,
-          userName: "王小虎",
-          userPhone: "18281575657",
-          status: "请假",
-        },
-        {
-          index: 3,
-          userName: "王小虎",
-          userPhone: "18281575657",
-          status: "学习",
-        },
-      ],
+      pageInfo: {
+        currentPage: 1,
+        pageSize: 15,
+        total: 0,
+      },
+      tableData: [],//表格数据
       detailList: {
         list1: [
           { discript: "请假次数", value: 12 },
@@ -415,20 +426,31 @@ export default {
       },
     };
   },
+  mixins: [statusMixin],
   created() {
+    this.getTableData(this.pageInfo.currentPage);
+
     this.$http.getDepartment().then((res) => {
       if (res.code == 200) {
-        this.departmentList = res.data;
-        this.addUserForm.department = res.data[0];
+        this.departmentList = res.data.data;
+        this.addUserForm.department = res.data.data[0];
       }
     });
 
     this.$http.getPosition().then((res) => {
       if (res.code == 200) {
-        this.positionList = res.data;
-        this.addUserForm.position = res.data[0];
+        this.positionList = res.data.data;
+        this.addUserForm.position = res.data.data[0];
       }
     });
+  },
+  watch: {
+    "pageInfo.currentPage": {
+      handler(newVal) {
+        this.getTableData(newVal);
+        this.pageInfo.currentPage = newVal;
+      },
+    },
   },
   methods: {
     handleEdit(index, row) {
@@ -458,32 +480,48 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(this.addUserForm);
-          this.$http.addUser({ ...this.addUserForm,
-          deptId:this.addUserForm.department.value,
-          deptName: this.addUserForm.department.name,
-          positionId: this.addUserForm.position.value,
-          positionName: this.addUserForm.position.name}).then((res) => {
-            console.log(res);
-            if (res.code == 200) {
-              this.$message({
-                message: "添加用户成功",
-                type: "success",
-                duration: 2000,
-              });
-              this.resetAddForm();
-            } else {
-              this.$message({
-                message: res.message,
-                type: "error",
-                duration: 2000,
-              });
-            }
-          });
+          this.$http
+            .addUser({
+              ...this.addUserForm,
+              deptId: this.addUserForm.department.value,
+              deptName: this.addUserForm.department.name,
+              positionId: this.addUserForm.position.value,
+              positionName: this.addUserForm.position.name,
+            })
+            .then((res) => {
+              console.log(res);
+              if (res.success) {
+                this.$message({
+                  message: "添加用户成功",
+                  type: "success",
+                  duration: 2000,
+                });
+                this.resetAddForm("addUserForm");
+                this.getTableData(this.pageInfo.currentPage);
+              }
+            });
         } else {
           console.log("数据验证不通过");
           return false;
         }
       });
+    },
+    getTableData(currentPage) {
+      this.$http
+        .findAllByPage({
+          pageNum: currentPage,
+          pageSize: this.pageInfo.pageSize,
+        })
+        .then((res) => {
+          if (res.code == 200) {
+            this.tableData = res.data.datalist ? res.data.datalist.result : [];
+            this.pageInfo.total = res.data.datalist ? res.data.datalist.total : 0;
+          }
+        });
+    },
+    handleCurrentChange(val) {
+      this.pageInfo.currentPage = val;
+      this.getTableData(val);
     },
   },
 };

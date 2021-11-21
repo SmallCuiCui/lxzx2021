@@ -30,6 +30,10 @@ import { LabelLayout, UniversalTransition } from 'echarts/features';
 // 引入 Canvas 渲染器，注意引入 CanvasRenderer 或者 SVGRenderer 是必须的一步
 import { CanvasRenderer } from 'echarts/renderers';
 
+import moment from 'moment'; 
+import 'moment/locale/zh-cn'
+moment.locale('zh-cn');
+
 // 注册必须的组件
 echarts.use([
   TitleComponent,
@@ -50,5 +54,6 @@ const app = createApp(App);
 // vue3 给原型上挂载属性
 app.config.globalProperties.$echarts = echarts;
 app.config.globalProperties.$http = ajax;
+app.config.globalProperties.$moment = moment;
 
 app.use(router).use(ElementPlus, {locale: zhCn,}).mount('#app')
