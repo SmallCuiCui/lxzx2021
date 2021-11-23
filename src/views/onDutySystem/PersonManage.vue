@@ -26,6 +26,7 @@
         <el-table-column prop="userName" label="姓名" width="160" />
         <el-table-column prop="userCode" label="账号" width="160" />
         <el-table-column prop="phoneNum" label="联系电话" width="180" />
+        <el-table-column prop="deptName" label="所在科室" width="180" />
         <el-table-column prop="status" label="在位状态" width="120">
           <template #default="scope">
             <span>{{ statusMap(scope.row.status) }}</span>
@@ -51,7 +52,6 @@
         :current-page="pageInfo.currentPage"
         :page-size="pageInfo.pageSize"
         @current-change="handleCurrentChange"
-        
         style="margin-top: 15px"
       >
       </el-pagination>

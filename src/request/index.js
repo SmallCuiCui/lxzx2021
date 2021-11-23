@@ -55,5 +55,12 @@ export const addAndEditWork = ({...paramas}) => ajax.post("/work/addAndEditWork"
 export const findAllWorkByPage = ({...paramas}) => ajax.get(`/work/findAllWorkByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}`);
 export const deletWorkById = (workId) => ajax.get(`/work/deletWorkById?workId=${workId}`);
 export const handleWorkPublish = (workId) => ajax.get(`/work/handleWorkPublish?workId=${workId}`);
+export const getWorkColectList = ({...paramas}) => ajax.post(`/work/getWorkColectList`, paramas);
+
+// 通知相关接口
+export const addAndEditNotice = ({...paramas}) => ajax.post("/notice/addAndEditNotice", paramas);
+export const findAllNoticeByPage = ({...paramas}) => ajax.get(`/notice/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}`);
+export const deletNoticeById = (noticeId) => ajax.get(`/notice/deletNoticeById?noticeId=${noticeId}`);
+export const handlePublishNow = (workId) => ajax.get(`/notice/handlePublishNow?workId=${workId}`);
 
 

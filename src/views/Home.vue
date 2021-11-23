@@ -9,10 +9,8 @@
         <el-header>
           <Header></Header>
         </el-header>
-        <el-main>
-          <el-card>
-            <router-view />
-          </el-card>
+        <el-main class="css-card">
+          <router-view />
         </el-main>
       </el-container>
     </el-col>
@@ -53,18 +51,15 @@ export default {
       height: 100px;
     }
 
-    .el-main {
+    .css-card{
+      border-radius: 4px;
+      border: 1px solid #e4e7ed;
+      background-color: #ffffff;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+      border-color: #e4e7ed;
       flex: 1;
-      padding: 5px 15px;
-
-      .el-card {
-        width: 100%;
-        height: 100%;
-      }
-
-      .el-card__body {
-          height: 100%;
-        }
+      margin: 5px 15px;
+      padding: 20px;
     }
   }
 }
