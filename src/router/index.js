@@ -6,7 +6,14 @@ const routes = [
     path: '/',
     name: 'Home',
     component: Home,
+    redirect: "/login",
     children: [
+      {
+        path: 'dashbord',
+        name: 'Dashbord',
+        component: () => import('../views/onDutySystem/Dashbord.vue'),
+        meta:{title: "工作上报"}
+      },
       {
         path: 'workReport',
         name: 'WorkReport',

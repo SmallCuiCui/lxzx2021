@@ -35,6 +35,7 @@ export default {
 .home_container {
   height: 100%;
   width: 100%;
+  position: relative;
 
   .el-header,
   .box_container {

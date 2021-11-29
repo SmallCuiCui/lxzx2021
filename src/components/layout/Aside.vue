@@ -10,57 +10,57 @@
         default-active="2"
         text-color="#fff"
       >
-        <router-link to="/">
-          <el-menu-item index="1">
+        <router-link to="/dashbord">
+          <el-menu-item index="1" style="padding-left:50px;">
             <i class="el-icon-location"></i>
             <span>控 制 台</span>
           </el-menu-item>
         </router-link>
 
         <router-link to="/workReport">
-          <el-menu-item index="2">
+          <el-menu-item index="2" style="padding-left:50px;">
             <i class="el-icon-menu"></i>
             <span>工作上报 </span>
           </el-menu-item>
         </router-link>
 
         <router-link to="/workColect">
-          <el-menu-item index="3">
+          <el-menu-item index="3" style="padding-left:50px;">
             <i class="el-icon-document"></i>
             <span>工作汇总</span>
           </el-menu-item>
         </router-link>
 
         <router-link to="/personManage">
-          <el-menu-item index="4">
+          <el-menu-item index="4" style="padding-left:50px;">
             <i class="el-icon-setting"></i>
             <span>人员管理</span>
           </el-menu-item>
         </router-link>
 
         <router-link to="/noticeManage">
-          <el-menu-item index="5">
+          <el-menu-item index="5" style="padding-left:50px;">
             <i class="el-icon-collection-tag"></i>
             <span>通知管理</span>
           </el-menu-item>
         </router-link>
 
         <router-link to="/workManage">
-          <el-menu-item index="6">
+          <el-menu-item index="6" style="padding-left:50px;">
             <i class="el-icon-date"></i>
             <span>值班管理</span>
           </el-menu-item>
         </router-link>
 
         <router-link to="/workCondition">
-          <el-menu-item index="7">
+          <el-menu-item index="7" style="padding-left:50px;">
             <i class="el-icon-s-data"></i>
             <span>工作动态</span>
           </el-menu-item>
         </router-link>
 
         <router-link to="/eventsRecord">
-          <el-menu-item index="4">
+          <el-menu-item index="8" style="padding-left:50px;">
             <i class="el-icon-timer"></i>
             <span>大 事 记</span>
           </el-menu-item>

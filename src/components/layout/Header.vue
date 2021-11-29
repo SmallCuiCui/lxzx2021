@@ -2,11 +2,49 @@
   <div class="header">
     <div class="header_top">
       <div class="header_top_notice">
-        <i class="el-icon-message-solid"></i>
+        <el-dropdown trigger="click">
+          <span class="el-dropdown-link" style="position:relative;padding: 3px;"> 
+            <i class="el-icon-message-solid"></i>
+            <span v-if="haveUnRead != 0" class="numRed">{{haveUnRead}}</span>
+          </span>
+          <template #dropdown>
+            <el-dropdown-menu :infinite-scroll-immediate="false" v-infinite-scroll="loadMoreNotice" style="height: 120px;overflow: auto">
+              <el-dropdown-item :icon="Plus" v-for="(item, index) in noticeList" :key="index">
+                <div class="header_top_notice_item" @click="showDetail(item)">
+                  <p class="header_top_notice_item_title">{{item.noticeTitle}}</p>
+                  <span :class="item.read ? '' : 'dot'"></span>
+                </div>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
       </div>
+      <el-dialog 
+        class="detailModal"
+        v-model="noticeDetailVisible" 
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :show-close="false"
+        :center="true">
+        <div>
+          <p class="detailModal_info">
+            <span>发布人：{{detailNotice.createUserName}}</span>
+            <span>发布时间：{{detailNotice.publishTime}}</span>
+          </p>
+          <p class="detailModal_content">{{detailNotice.noticeContent}}</p>
+        </div>
+        <template #title>
+          <p class="detailModal_title">{{detailNotice.noticeTitle}}</p>
+        </template>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button type="primary" @click="handleRead()">确认</el-button>
+          </span>
+        </template>
+      </el-dialog>
 
       <div class="header_top_userInfo">
-        <el-dropdown>
+        <el-dropdown trigger="click">
           <span class="el-dropdown-link">
             {{ userInfo.userName }}<i class="el-icon-arrow-down el-icon--right"></i>
           </span>
@@ -111,10 +149,16 @@ export default {
     };
     return {
       dialogVisible: false,
+      haveUnRead: 0,
+      noticeDetailVisible: false,
+      detailNotice: {},
+      pageNum: 1,//请求第一页，默认十条
+      totalPage: 0,
       userInfo: {
         userCode: "admin",
         userName: "",
       },
+      noticeList:[],
       passwordForm: {
         orginPassword: "",
         newPassword: "",
@@ -141,8 +185,13 @@ export default {
     if (userInfo) {
       this.userInfo = JSON.parse(userInfo);
     }
+    this.loadNotice();
   },
   methods: {
+    showDetail(notice) {
+      this.detailNotice = notice;
+      this.noticeDetailVisible = true;
+    },
     handleModal(formName) {
       console.log(formName);
       this.$refs[formName].validate((valid) => {
@@ -195,6 +244,56 @@ export default {
         });
       });
     },
+    loadMoreNotice() {
+      this.pageNum ++;
+      // 请求到了最大页数时不再请求
+      if(this.pageNum > this.totalPage) {
+        return;
+      }
+      this.loadNotice();
+    },
+    loadNotice() {
+      this.$http.queryAllPublishNotice(this.pageNum).then(res => {
+        if(res.code == 200) {
+          this.noticeList = this.noticeList.concat(res.data.datalist.result);
+          res.data.datalist.result.forEach((value) => {
+            if(!value.read){
+              this.haveUnRead++;
+            }
+          })
+          this.totalPage = res.data.datalist.page;
+          // 第一条未读，默认弹框显示
+          if(this.noticeList[0].read == false) {
+            this.detailNotice = this.noticeList[0];
+            this.noticeDetailVisible = true;
+          }
+        }
+      })
+    },
+    handleRead() {
+      if(this.detailNotice.read == false) {
+        let noticeId = this.detailNotice.noticeId;
+        // 接口请求阅读
+        this.$http.handleUserRead({
+          userCode: this.userInfo.userCode,
+          noticeId,
+          readUserCodes: this.detailNotice.readUserCodes
+        }).then(res => {
+          if(res.code == 200) {
+            var newList = this.noticeList.map(item => {
+              if(item.noticeId == noticeId) {
+                item.read = true;
+              }
+              return item;
+            })
+            this.noticeList = newList;
+            this.haveUnRead--;
+          }
+        })
+      }
+      this.noticeDetailVisible = false;
+      this.detailNotice = {};
+    }
   },
 };
 </script>
@@ -216,6 +315,68 @@ export default {
       margin-right: 30px;
       :hover {
         cursor: pointer;
+      }
+      .el-icon-message-solid{
+        font-size: 16px;
+      }
+
+      .numRed{
+        display: inline-block;
+        width: 14px;
+        height: 14px;
+        text-align: center;
+        position: absolute;
+        top: -5px;
+        right: -10px;
+        font-size: 12px;
+        color: red;
+        border: 1px solid red;
+        border-radius: 50%;
+      }
+
+      &_item{
+        height: 32px;
+        line-height: 32px;
+        position: relative;
+
+        .dot{
+          display: inline-block;
+          position: absolute;
+          top: 5px;
+          right: 10px;
+          width: 5px;
+          height: 5px;
+          background-color: red;
+          border-radius: 10px;
+        }
+
+        &_title{
+          width: 140px;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          overflow: hidden;
+        }
+      }
+    }
+
+    .detailModal{
+      &_info{
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
+        height: 28px;
+        line-height: 24px;
+      }
+      &_title{
+        text-align: center;
+        font-weight: 400;
+        font-size: 22px;
+      }
+
+      &_content{
+        text-indent:2em;
+        line-height: 32px;
+        font-size: 16px;
       }
     }
 
@@ -255,4 +416,8 @@ export default {
     font-family: Arial, Helvetica, sans-serif;
   }
 }
+.el-dialog__body{
+  padding-top: 0 !important;
+}
+
 </style>

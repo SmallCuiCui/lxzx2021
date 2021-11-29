@@ -1,4 +1,19 @@
 export const statusMixin = {
+    data() {
+        return {
+            statusList: [
+                {code: "ZAIWEI", name: "在位"},
+                {code: "XUEXI", name: "学习"},
+                {code: "CHUCHAI", name: "出差"},
+                {code: "QINGJIA", name: "请假"},
+                {code: "LUNXIU", name: "轮休"},
+                {code: "JIEDIAO", name: "借调"},
+                {code: "ZHUYUAN", name: "住院"},
+                {code: "PEIHU", name: "陪护"},
+                {code: "XIUJIA", name: "休假"},
+            ]
+        }
+    },
     methods: {
         statusMap(status) {
             switch (status) {

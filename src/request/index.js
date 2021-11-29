@@ -18,7 +18,8 @@ ajax.interceptors.request.use(config => {
 
 ajax.interceptors.response.use(resp => {
   if (resp.status === 200) {
-    if(resp.data.code !== 200) {
+    // 状态码为3000的不需要提示
+    if(resp.data.code !== 200 && resp.data.code != 3000) {
       ElMessage({
         message: resp.data.message,
         type: "error",
@@ -62,5 +63,7 @@ export const addAndEditNotice = ({...paramas}) => ajax.post("/notice/addAndEditN
 export const findAllNoticeByPage = ({...paramas}) => ajax.get(`/notice/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}`);
 export const deletNoticeById = (noticeId) => ajax.get(`/notice/deletNoticeById?noticeId=${noticeId}`);
 export const handlePublishNow = (workId) => ajax.get(`/notice/handlePublishNow?workId=${workId}`);
+export const queryAllPublishNotice = (pageNum) => ajax.get(`/notice/queryAllPublishNotice?pageNum=${pageNum}`);
+export const handleUserRead = (paramas) => ajax.post(`/notice/handleUserRead`, paramas);
 
 
