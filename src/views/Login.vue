@@ -96,7 +96,6 @@ export default {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-           console.log("submit!", this.ruleForm);
            this.$http.postLogin({
              userCode: this.ruleForm.userName,
              password: this.ruleForm.password}).then(resp => {

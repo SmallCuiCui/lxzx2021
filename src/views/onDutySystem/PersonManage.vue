@@ -74,6 +74,7 @@
               <el-input
                 v-model="editForm.phoneNum"
                 autocomplete="off"
+                disabled
               ></el-input>
             </el-form-item>
           </el-col>
@@ -479,9 +480,7 @@ export default {
     handleAddModal(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log(this.addUserForm);
-          this.$http
-            .addUser({
+          this.$http.addUser({
               ...this.addUserForm,
               deptId: this.addUserForm.department.value,
               deptName: this.addUserForm.department.name,

@@ -47,9 +47,10 @@ export default {
     display: flex;
     flex-direction: column;
     height: 100%;
+    background: #f2f6fc;
 
     .el-header {
-      height: 100px;
+      // height: 100px;
     }
 
     .css-card{

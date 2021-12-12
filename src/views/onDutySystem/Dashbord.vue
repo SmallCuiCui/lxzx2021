@@ -40,7 +40,7 @@
                 <td>在位主管</td>
                 <td>值班领导</td>
                 <td>值班员</td>
-                <td>备班元</td>
+                <td>备班员</td>
                 <td>勤务保障</td>
                 <td>驾驶员</td>
             </tr>
@@ -61,12 +61,12 @@
         </table>
     </div>
     <div class="dashbord_notice" v-else>
-        <h2 class="dashbord_notice_title">关于xxx的通知标题</h2>
+        <h2 class="dashbord_notice_title">{{noticeScreen.noticeTitle}}</h2>
         <p class="dashbord_notice_time">
-            <span>2021/11/25 21:20:00</span>
-            <span>王小虎</span>
+            <span>{{noticeScreen.publishTime}}</span>
+            <span>{{noticeScreen.createUserName}}</span>
         </p>
-        <p class="dashbord_notice_content">文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx，文字内容xxxxxxx文字内容xxxxxxx</p>
+        <p class="dashbord_notice_content">{{noticeScreen.noticeContent}}</p>
     </div>
 </div>
 </template>
@@ -105,7 +105,8 @@ export default {
                 }
             ],
             illustrations:[],
-            isFull: false
+            isFull: false,
+            noticeScreen: {}
         }
     },
     mounted() {
@@ -117,6 +118,8 @@ export default {
                 that.isFull = false;
             }
         })
+
+        this.getScreenNotice();
     },
     beforeUnmount() {
       clearInterval(this.timer);
@@ -133,6 +136,13 @@ export default {
             if(this.currentShow > 3) {
                 this.currentShow = 0;
             }
+        },
+        getScreenNotice() {
+            this.$http.queryScreenNotice().then(res => {
+                if(res.code == 200) {
+                    this.noticeScreen = res.data.datalist[0];
+                }
+            })
         }
     }
 }
@@ -150,6 +160,7 @@ export default {
     }
     &_condition{
         border: 1px solid #cccccc;
+        overflow: hidden;
         
         &_row{
             width: 100%;
@@ -271,7 +282,7 @@ export default {
             font-size: 20px;
             white-space: pre-wrap;
             word-break: break-word;
-            text-indent: 2em;
+            // text-indent: 2em;
             word-break:normal; 
             text-align: left;
             line-height: 30px;

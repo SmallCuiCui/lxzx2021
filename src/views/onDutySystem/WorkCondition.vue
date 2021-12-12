@@ -7,7 +7,7 @@
           <el-button plain size="mini">本周(10条记录)</el-button>
         </div>
         <el-table :data="tableData1" border style="width: 100%">
-          <el-table-column prop="index" label="序号" width="80" />
+          <el-table-column prop="index" label="序号" width="80" align="center"/>
           <el-table-column prop="changeTime" label="变更时间" width="160" />
           <el-table-column prop="content" label="内容" />
           <el-table-column prop="changeObj" label="变更对象" width="80" />
@@ -21,7 +21,7 @@
           <el-button plain size="mini">本周(10条记录)</el-button>
         </div>
         <el-table :data="tableData2" border style="width: 100%">
-          <el-table-column prop="index" label="序号" width="80" />
+          <el-table-column prop="index" label="序号" width="80" align="center" />
           <el-table-column prop="publishTime" label="提交时间" width="160" />
           <el-table-column prop="content" label="内容" />
           <el-table-column prop="changeObj" label="变更对象" width="80" />

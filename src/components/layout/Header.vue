@@ -1,7 +1,11 @@
 <template>
   <div class="header">
     <div class="header_top">
-      <div class="header_top_notice">
+      <div class="header_top_left">
+        <span v-html="timeString"></span>
+      </div>
+      <div class="header_top_right">
+        <div class="header_top_notice">
         <el-dropdown trigger="click">
           <span class="el-dropdown-link" style="position:relative;padding: 3px;"> 
             <i class="el-icon-message-solid"></i>
@@ -9,7 +13,7 @@
           </span>
           <template #dropdown>
             <el-dropdown-menu :infinite-scroll-immediate="false" v-infinite-scroll="loadMoreNotice" style="height: 120px;overflow: auto">
-              <el-dropdown-item :icon="Plus" v-for="(item, index) in noticeList" :key="index">
+              <el-dropdown-item v-for="(item, index) in noticeList" :key="index">
                 <div class="header_top_notice_item" @click="showDetail(item)">
                   <p class="header_top_notice_item_title">{{item.noticeTitle}}</p>
                   <span :class="item.read ? '' : 'dot'"></span>
@@ -20,7 +24,6 @@
         </el-dropdown>
       </div>
       <el-dialog 
-        class="detailModal"
         v-model="noticeDetailVisible" 
         :close-on-click-modal="false"
         :close-on-press-escape="false"
@@ -123,12 +126,8 @@
       <div class="header_top_out">
         <span @click="loginOut">退出登录</span>
       </div>
-    </div>
-
-    <div class="header_bottom">
-      <div class="header_bottom_left">当前位置：<span>控制台</span></div>
-      <div class="header_bottom_right">2021.10.21 21:57:42 周四</div>
-    </div>
+      </div>
+    </div> 
   </div>
 </template>
 
@@ -178,6 +177,7 @@ export default {
           { required: true, validator: validatePass2, trigger: "blur" },
         ],
       },
+      timeString: ""
     };
   },
   created() {
@@ -186,6 +186,11 @@ export default {
       this.userInfo = JSON.parse(userInfo);
     }
     this.loadNotice();
+  },
+  mounted() {
+    this.timer = setInterval(()=>{
+      this.timeString = this.$moment().format("YYYY-MM-DD HH:mm:ss") + "&nbsp;&nbsp;&nbsp;&nbsp;周" + this.num2word(this.$moment().weekday());
+    }, 1000);
   },
   methods: {
     showDetail(notice) {
@@ -293,8 +298,22 @@ export default {
       }
       this.noticeDetailVisible = false;
       this.detailNotice = {};
-    }
+    },
+    num2word(num) {
+      switch(num) {
+        case 0: return "一";
+        case 1: return "二";
+        case 2: return "三";
+        case 3: return "四";
+        case 4: return "五";
+        case 5: return "六";
+        case 6: return "七";
+      }
+    },
   },
+  beforeUnmount() {
+    clearInterval(this.timer);
+  }
 };
 </script>
 
@@ -303,13 +322,25 @@ export default {
   background: #ffffff;
   font-family: Arial, Helvetica, sans-serif;
   font-size: 14px;
+  background-color: #ffffff;
+  height: 100%;
 
   &_top {
-    height: 50px;
-    line-height: 50px;
+    height: 100%;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
+
+    &_left{
+      padding-left: 30px;
+      font-size: 16px;
+    }
+
+    &_right{
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
 
     &_notice {
       margin-right: 30px;
@@ -359,26 +390,24 @@ export default {
       }
     }
 
-    .detailModal{
-      &_info{
+    .detailModal_info{
         display: flex;
         width: 100%;
         justify-content: space-around;
         height: 28px;
         line-height: 24px;
       }
-      &_title{
+      .detailModal_title{
         text-align: center;
         font-weight: 400;
         font-size: 22px;
       }
 
-      &_content{
+      .detailModal_content{
         text-indent:2em;
         line-height: 32px;
         font-size: 16px;
       }
-    }
 
     &_userInfo {
       margin-right: 20px;
@@ -402,18 +431,6 @@ export default {
     .el-icon-arrow-down {
       font-size: 12px;
     }
-  }
-
-  &_bottom {
-    display: flex;
-    justify-content: space-between;
-    color: black;
-    height: 40px;
-    line-height: 40px;
-    padding-right: 40px;
-    padding-left: 20px;
-    background: #f2f6fc;
-    font-family: Arial, Helvetica, sans-serif;
   }
 }
 .el-dialog__body{

@@ -1,4 +1,4 @@
-import axios from "_axios@0.24.0@axios";
+import axios from "axios";
 import router from "../router"
 import { ElMessage } from 'element-plus'
 
@@ -65,5 +65,12 @@ export const deletNoticeById = (noticeId) => ajax.get(`/notice/deletNoticeById?n
 export const handlePublishNow = (workId) => ajax.get(`/notice/handlePublishNow?workId=${workId}`);
 export const queryAllPublishNotice = (pageNum) => ajax.get(`/notice/queryAllPublishNotice?pageNum=${pageNum}`);
 export const handleUserRead = (paramas) => ajax.post(`/notice/handleUserRead`, paramas);
+export const queryScreenNotice = () => ajax.get(`/notice/queryScreenNotice`);
 
+// 值班管理
+export const addAndEditSchedule = ({...paramas}) => ajax.post(`/schedule/addAndEditSchedule`, paramas);
+export const editZhiQin = (paramas) => ajax.post(`/schedule/editZhiQin`, paramas);
+export const findScheduleByPage = ({...paramas}) => ajax.get(`/schedule/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&type=${paramas.type}`, paramas);
+export const findZhiQinByPage = ({...paramas}) => ajax.get(`/schedule/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&type=${paramas.type}&remark=${paramas.remark}`, paramas);
+export const deletScheduleById = (scheduleId) => ajax.get(`/schedule/deletScheduleById?scheduleId=${scheduleId}`);
 
