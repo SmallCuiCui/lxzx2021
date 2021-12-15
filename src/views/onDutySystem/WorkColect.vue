@@ -41,7 +41,7 @@
           v-for="(item, index) in workList"
           :key="index"
         >
-        <table v-if="danweiValue == 'all'" class="workColect_noDanwei_item_table1">
+        <table v-if="danweiValue == 'all'" class="workColect_noDanwei_item_table1" v-loading="loading">
           <tr><td>{{ item.workTime }}</td></tr>
           <tr>
             <td>科室</td>
@@ -102,6 +102,7 @@ export default {
       selectDate: "",
       workType: "",
       danweiValue: "all",
+      loading: false,
       shortcuts: [
         {
           text: "最近一周",
@@ -159,13 +160,14 @@ export default {
       this.getTableDatas();
     },
     getTableDatas() {
-      console.log(this.selectDate)
+      this.loading = true;
       this.$http.getWorkColectList({
         workType: this.workType,
         deptId: this.danweiValue == "all" ? null : this.danweiValue,
         startTime: this.selectDate ? this.$moment(this.selectDate[0]).startOf("day").format("YYYY-MM-DD HH:mm:ss") : null,
         endTime: this.selectDate ? this.$moment(this.selectDate[1]).endOf("day").format("YYYY-MM-DD HH:mm:ss") : null,
       }).then(res => {
+        this.loading = false;
         if(res.code == 200) {
           this.workList = res.data.data;
         }

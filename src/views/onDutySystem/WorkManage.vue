@@ -78,15 +78,25 @@
       <el-tab-pane label="值班统计" name="second">
         <div class="workManage_filters">
           <el-form ref="form" class="filter" :model="filterParams" label-width="80px">
-            <el-form-item label="值班人员" prop="user">
+            <el-form-item label="值班人员" prop="user" style="width: 300px;">
               <el-select
                 v-model="filterParams.user"
-                placeholder="请选择"
+                filterable
+                remote
+                multiple
+                reserve-keyword
+                placeholder="请输入姓名"
+                :remote-method="remoteMethodAll"
+                @change="(val)=>handleFilterUser(val)"
                 size="mini"
               >
-                <el-option label="全部" value="quanbu"></el-option>
-                <el-option label="张三" value="shanghai"></el-option>
-                <el-option label="李四" value="beijing"></el-option>
+                <el-option
+                  v-for="item in options"
+                  :key="item.userCode"
+                  :label="item.userName"
+                  :value="item.userCode"
+                >
+                </el-option>
               </el-select>
             </el-form-item>
 
@@ -334,13 +344,13 @@
       v-model="dialogDetail" 
       :title="'岗哨排班 (' + detailTime + ')'"
       :close-on-click-modal="false"
+      destroy-on-close
     >
       <div class="detail_content">
         <div class="detail_content_item" v-for="(item, index) in detailOriginData" :key="item.scheduleId">
           <div v-text="weekMap(item.startTime).name" class="detail_content_item_week"></div>
           <div class="detail_content_item_name" @dblclick="handleCellDbclick" >
             <div class="input-box">
-                <!-- <el-input size="small" @blur="handleInputBlur" v-model="item.zhiBanYuan" ></el-input> -->
                 <el-select
                   v-model="item.zhiBanYuan"
                   filterable
@@ -397,7 +407,7 @@ export default {
         startTime: "",
         endTime: "",
       },
-      personOptions: [],//所有人
+      personOptions: [],// 所有人
       zhuGuanList: [], // 主官
       lingDaoList: [], // 领导
       zhiBanList: [], // 干部人员
@@ -407,7 +417,7 @@ export default {
       myChart: null, 
       addModalVisible: false,
       dialogDetail: false,
-      detailOriginData: [],
+      detailOriginData: [],//一楼岗哨排班
       detailTime: "",
       pageInfo: {
         currentPage: 1,
@@ -544,8 +554,8 @@ export default {
     },
     tabChange(tab) {
       if (tab.paneName == "second" && this.myChart) {
+        this.queryUsers();
         this.initEcharts();
-        console.log("重绘制柱状图");
         setTimeout(() => {
           this.myChart.resize();
         }, 0);
@@ -617,6 +627,7 @@ export default {
       this.$http.findUserByDeptId("all").then((res) => {
         if (res.code == 200) {
           this.personOptions = res.data.data;
+          this.options = this.personOptions;
           this.lingDaoList = [];
           this.personOptions.forEach(item => {
             if(item.limitedId == 'LEADER') {//领导
@@ -672,6 +683,7 @@ export default {
         });
       }
     },
+    // 本周记录给背景样式
     tableRowClassName({ row }) {
       if (this.checkWeek(row.startTime, row.endTime)) {
         return 'todayStyle'
@@ -682,6 +694,7 @@ export default {
       var today = new Date();
       return (new Date(startTime) <= today && new Date(endTime) >= today)
     },
+    // 获取营门值班人员
     handleDetail(row) {
       this.dialogDetail = true;
       // 获取人员信息
@@ -694,7 +707,6 @@ export default {
       }).then(res => {
         if (res.code == 200) {
           this.detailOriginData = res.data.datalist ? res.data.datalist.result : [];
-          this.detailOriginData;
         }
       })
       
@@ -759,6 +771,20 @@ export default {
         case 6: return {value: "saturday", name: "周六"};
         case 7: return {value: "sunday", name: "周日"};
       }
+    },
+    // 过滤所有人
+    remoteMethodAll(query) {
+      console.log(query, this.personOptions)
+      if (query !== '') {
+        this.options = this.personOptions.filter((item) => {
+          return item.userName.indexOf(query) > -1
+        })
+      } else {
+        this.options = this.personOptions
+      }
+    },
+    handleFilterUser(val) {
+      console.log(val)
     }
   },
 };
@@ -771,7 +797,7 @@ export default {
     display: flex;
     margin: 30px 0;
     .el-form-item__content {
-      width: 120px;
+      // width: 120px;
     }
   }
 

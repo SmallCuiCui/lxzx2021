@@ -1,118 +1,127 @@
 <template>
   <div class="workCondition">
-    <el-tabs>
-      <el-tab-pane label="在位变动统计">
+    <el-tabs @tab-click="tabChange" v-model="currentTab">
+      <el-tab-pane label="在位变动统计" name="tabOne">
         <div class="workCondition_btns">
-          <el-button plain size="mini">今日(3条记录)</el-button>
-          <el-button plain size="mini">本周(10条记录)</el-button>
+          <el-button plain size="mini">今日( <span style="color: red; font-size: 16px;">{{dayNum}}</span> 条记录)</el-button>
+          <el-button plain size="mini">本周( <span style="color: red; font-size: 16px;">{{weekNum}}</span> 条记录)</el-button>
         </div>
-        <el-table :data="tableData1" border style="width: 100%">
-          <el-table-column prop="index" label="序号" width="80" align="center"/>
-          <el-table-column prop="changeTime" label="变更时间" width="160" />
-          <el-table-column prop="content" label="内容" />
-          <el-table-column prop="changeObj" label="变更对象" width="80" />
-          <el-table-column prop="originStatus" label="原状态" width="80" />
-          <el-table-column prop="changeStatus" label="变更状态" width="80" />
+        <el-table :data="tableData" border style="width: 100%" v-loading="loading">
+          <el-table-column prop="index" label="序号" width="80" align="center">
+            <template #default="scope">
+              <span>{{(pageInfo.currentPage - 1) * pageInfo.pageSize + scope.$index + 1}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" label="变更时间" width="160" align="center"/>
+          <el-table-column prop="discription" label="内容" />
+          <el-table-column prop="targetUser" label="变更对象" width="120" align="center"/>
+          <el-table-column prop="originStatus" label="原状态" width="120" align="center">
+            <template #default="scope">
+            <span>{{ statusMap(scope.row.originStatus) }}</span>
+          </template>
+          </el-table-column>
+          <el-table-column prop="newStatus" label="变更状态" width="120">
+            <template #default="scope">
+            <span>{{ statusMap(scope.row.newStatus) }}</span>
+          </template>
+          </el-table-column>
         </el-table>
+        <el-pagination
+          background
+          layout="prev, pager, next, total"
+          :total="pageInfo.total"
+          :current-page="pageInfo.currentPage"
+          :page-size="pageInfo.pageSize"
+          @current-change="(val)=>handleCurrentChange(val, 1)"
+          style="margin-top: 15px"
+        >
+        </el-pagination>
       </el-tab-pane>
-      <el-tab-pane label="人员提交统计">
-        <div  class="workCondition_btns">
-          <el-button plain size="mini">今日(3条记录)</el-button>
-          <el-button plain size="mini">本周(10条记录)</el-button>
+      <el-tab-pane label="人员提交统计" name="tabTwo">
+        <div class="workCondition_btns">
+          <el-button plain size="mini">今日( <span style="color: red; font-size: 16px;">{{dayNum}}</span> 条记录)</el-button>
+          <el-button plain size="mini">本周( <span style="color: red; font-size: 16px;">{{weekNum}}</span> 条记录)</el-button>
         </div>
-        <el-table :data="tableData2" border style="width: 100%">
-          <el-table-column prop="index" label="序号" width="80" align="center" />
-          <el-table-column prop="publishTime" label="提交时间" width="160" />
-          <el-table-column prop="content" label="内容" />
-          <el-table-column prop="changeObj" label="变更对象" width="80" />
+        <el-table :data="tableData" border style="width: 100%" v-loading="loading">
+          <el-table-column prop="index" label="序号" width="80" align="center" >
+            <template #default="scope">
+              <span>{{(pageInfo.currentPage - 1) * pageInfo.pageSize + scope.$index + 1}}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" label="提交时间" width="180" align="center" />
+          <el-table-column prop="discription" label="内容" width="900" />
+          <el-table-column prop="targetUser" label="变更对象" width="120" align="center" />
         </el-table>
+        <el-pagination
+          background
+          layout="prev, pager, next, total"
+          :total="pageInfo.total"
+          :current-page="pageInfo.currentPage"
+          :page-size="pageInfo.pageSize"
+          @current-change="(val)=>handleCurrentChange(val, 2)"
+          style="margin-top: 15px"
+        >
+      </el-pagination>
       </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script>
+import { statusMixin } from "@/assets/js/mixins.js";
+
 export default {
+  created() {
+    this.getTableData(this.pageInfo.currentPage, 1)
+  },
+  mixins: [statusMixin],
   data() {
     return {
-      tableData1: [
-        {
-          index: 1,
-          changeTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "在位",
-          changeStatus: "请假",
-        },
-        {
-          index: 2,
-          changeTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "在位",
-          changeStatus: "出差",
-        },
-        {
-          index: 3,
-          changeTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "在位",
-          changeStatus: "休假",
-        },
-        {
-          index: 4,
-          changeTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "请假",
-          changeStatus: "在位",
-        },
-      ],
-      tableData2: [
-        {
-          index: 1,
-          publishTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "在位",
-          changeStatus: "请假",
-        },
-        {
-          index: 2,
-          publishTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "在位",
-          changeStatus: "出差",
-        },
-        {
-          index: 3,
-          publishTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "在位",
-          changeStatus: "休假",
-        },
-        {
-          index: 4,
-          publishTime: "2016-05-03  11:09:41",
-          changeObj: "王小虎",
-          content:
-            "xxx变更王小虎在位状态为'请假'，时间2021.10.22-2021.10.25，共四天",
-          originStatus: "请假",
-          changeStatus: "在位",
-        },
-      ],
+      loading: false,
+      pageInfo: {
+        currentPage: 1,
+        pageSize: 15,
+        total: 0,
+      },
+      currentTab: "tabOne",
+      tableData: [],
+      dayNum: 0,
+      weekNum: 0
     };
   },
+  methods: {
+    getTableData(currentPage, recordType) {
+      this.loading = true;
+      this.$http.findAllDynamicByPage({
+        pageNum: currentPage,
+        pageSize: 10,
+        recordType: recordType
+      }).then(res => {
+        this.loading = false;
+        if(res.code == 200) {
+          this.tableData = res.data.datalist ? res.data.datalist.result : [];
+          this.pageInfo.total = res.data.datalist ? res.data.datalist.total : 0;
+          this.dayNum = res.data.dayNum;
+          this.weekNum = res.data.weekNum;
+        }
+      })
+    },
+    handleCurrentChange(val, recordType) {
+      this.pageInfo.currentPage = val;
+      this.getTableData(val, recordType);
+    },
+    tabChange() {
+      var recordType = "";
+      this.pageInfo.currentPage = 1;
+      if(this.currentTab == "tabOne") {
+        recordType = 1;
+      } else {
+        recordType = 2;
+      }
+      this.tableData = [];
+      this.getTableData(this.pageInfo.currentPage, recordType)
+    }
+  }
 };
 </script>
 

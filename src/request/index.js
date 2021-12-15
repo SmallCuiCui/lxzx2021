@@ -23,7 +23,7 @@ ajax.interceptors.response.use(resp => {
       ElMessage({
         message: resp.data.message,
         type: "error",
-        duration: 1000,
+        duration: 2000,
       })
     }
     // 后端session过期
@@ -45,6 +45,7 @@ export const changePassword = ({...paramas}) => ajax.post("/user/changePassword"
 export const loginOut = () => ajax.get("/user/loginOut")
 export const findAllByPage = ({...paramas}) => ajax.get(`/user/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}`)
 export const findUserByDeptId = (deptId) => ajax.get(`/user/findUserByDeptId?deptId=${deptId}`)
+export const editUserStatus = ({...paramas}) => ajax.post("/user/editUserStatus", paramas)
 
 // 获取单位列表、权限列表、职务列表
 export const getDepartment = () => ajax.get("/common/getDepartment");
@@ -74,3 +75,10 @@ export const findScheduleByPage = ({...paramas}) => ajax.get(`/schedule/findAllB
 export const findZhiQinByPage = ({...paramas}) => ajax.get(`/schedule/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&type=${paramas.type}&remark=${paramas.remark}`, paramas);
 export const deletScheduleById = (scheduleId) => ajax.get(`/schedule/deletScheduleById?scheduleId=${scheduleId}`);
 
+
+// 获取动态记录
+export const findAllDynamicByPage = ({...paramas}) => ajax.get(`/dynamic/findAllDynamicByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&recordType=${paramas.recordType}`);
+
+// 不在位记录
+export const findRecordByPage = ({...paramas}) => ajax.get(`/zaiWeiRecord/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&userCode=${paramas.userCode}`, paramas);
+export const deletRecordById = (zwRecordId) => ajax.get(`/zaiWeiRecord/deletRecordById?zwRecordId=${zwRecordId}`);

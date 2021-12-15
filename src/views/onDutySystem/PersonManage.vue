@@ -17,7 +17,13 @@
     </el-row>
 
     <el-row style="margin-top: 20px">
-      <el-table :data="tableData" border style="width: 100%" :default-sort="{ prop: 'createTime', order: 'descending' }">
+      <el-table 
+        :data="tableData" 
+        border 
+        style="width: 100%" 
+        :default-sort="{ prop: 'createTime', order: 'descending' }"
+        v-loading="loading"
+      >
         <el-table-column prop="index" label="序号" width="80">
           <template #default="scope">
             <span>{{(pageInfo.currentPage - 1) * pageInfo.pageSize + scope.$index + 1}}</span>
@@ -43,7 +49,12 @@
             >
           </template>
         </el-table-column>
-        <el-table-column prop="statistics" label="统计" />
+        <el-table-column prop="statistics" label="不在位状态记录">
+          <template #default="scope">
+            <span @click="handleViewZaiWei(scope.row)" class="edit"
+              >查看</span>
+          </template>
+        </el-table-column>
       </el-table>
       <el-pagination
         background
@@ -83,56 +94,56 @@
           <el-col :span="24">
             <el-form-item label="在位状态" label-width="100px">
               <el-check-tag
-                :checked="editForm.status == 'zaiwei'"
-                @click="editForm.status = 'zaiwei'"
+                :checked="editForm.status == 'ZAIWEI'"
+                @click="editForm.status = 'ZAIWEI'"
                 style="margin-right: 8px"
                 >在位</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'xuexi'"
-                @click="editForm.status = 'xuexi'"
+                :checked="editForm.status == 'XUEXI'"
+                @click="editForm.status = 'XUEXI'"
                 style="margin-right: 8px"
                 >学习</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'chuchai'"
-                @click="editForm.status = 'chuchai'"
+                :checked="editForm.status == 'CHUCHAI'"
+                @click="editForm.status = 'CHUCHAI'"
                 style="margin-right: 8px"
                 >出差</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'qingjia'"
-                @click="editForm.status = 'qingjia'"
+                :checked="editForm.status == 'QINGJIA'"
+                @click="editForm.status = 'QINGJIA'"
                 style="margin-right: 8px"
                 >请假</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'xiujia'"
-                @click="editForm.status = 'xiujia'"
+                :checked="editForm.status == 'XIUJIA'"
+                @click="editForm.status = 'XIUJIA'"
                 style="margin-right: 8px"
                 >休假</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'lunxiu'"
-                @click="editForm.status = 'lunxiu'"
+                :checked="editForm.status == 'LUNXIU'"
+                @click="editForm.status = 'LUNXIU'"
                 style="margin-right: 8px"
                 >轮休</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'jiediao'"
-                @click="editForm.status = 'jiediao'"
+                :checked="editForm.status == 'JIEDIAO'"
+                @click="editForm.status = 'JIEDIAO'"
                 style="margin-right: 8px"
                 >借调</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'zhuyuan'"
-                @click="editForm.status = 'zhuyuan'"
+                :checked="editForm.status == 'ZHUYUAN'"
+                @click="editForm.status = 'ZHUYUAN'"
                 style="margin-right: 8px"
                 >住院</el-check-tag
               >
               <el-check-tag
-                :checked="editForm.status == 'prihu'"
-                @click="editForm.status = 'prihu'"
+                :checked="editForm.status == 'PEIHU'"
+                @click="editForm.status = 'PEIHU'"
                 style="margin-right: 8px"
                 >陪护</el-check-tag
               >
@@ -145,8 +156,9 @@
             <el-form-item label="开始时间" label-width="100px">
               <el-date-picker
                 v-model="editForm.startDate"
-                type="datetime"
+                type="date"
                 placeholder="请选择"
+                :disabled="editForm.status == 'ZAIWEI'"
               ></el-date-picker>
             </el-form-item>
           </el-col>
@@ -154,7 +166,7 @@
             <el-form-item label="结束时间" label-width="100px">
               <el-date-picker
                 v-model="editForm.endDate"
-                type="datetime"
+                type="date"
                 placeholder="请选择"
               ></el-date-picker>
             </el-form-item>
@@ -344,6 +356,62 @@
         </span>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="zaiWeiVisible" title="不在位记录表">
+      <p style="margin-bottom: 15px;font-size: 16px;">
+        <span>{{"姓名：" + this.selectedRow.userName}}</span>
+        <span style="margin-left: 20px">{{"单位：" + this.selectedRow.deptName}}</span>
+      </p>
+      <el-table :data="tableData2" border :default-sort="{ prop: 'createTime', order: 'descending' }">
+        <el-table-column prop="index" label="序号" width="80" align="center">
+          <template #default="scope">
+            <span>{{(pageInfo.currentPage - 1) * pageInfo.pageSize + scope.$index + 1}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="changeStatus" label="不在位状态" width="100" align="center">
+          <template #default="scope">
+            <span>{{ statusMap(scope.row.changeStatus) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="dayNum" label="天数" width="80" align="center" />
+        <el-table-column prop="startTime" label="开始时间" width="180" align="center">
+          <template #default="scope">
+            <span>{{scope.row.startTime.slice(0,10)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="endTime" label="结束时间" width="180" align="center">
+          <template #default="scope">
+            <span>{{scope.row.endTime.slice(0,10)}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="commitUserName" label="提交人" width="100" align="center"/>
+        <el-table-column label="操作" align="center">
+          <template #default="scope">
+            <span @click="handleDeleteRecord(scope.row)"
+              :class="checkTimeIsPassed(scope.row.startTime) ? 'publish' : 'draft'"
+              >删除</span
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        background
+        layout="prev, pager, next, total"
+        :total="pageInfo2.total"
+        :current-page="pageInfo2.currentPage"
+        :page-size="pageInfo2.pageSize"
+        @current-change="handleCurrentChange2"
+        style="margin-top: 15px"
+      >
+      </el-pagination>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="zaiWeiVisible = false"
+            >确认</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -359,13 +427,16 @@ export default {
         qingjia: 2,
         jiediao: 2,
       },
+      loading: false,
       editVisible: false,
       detailVisible: false,
+      zaiWeiVisible: false,
       editForm: {
         userName: "王小虎",
         userCode: "admin",
         phoneNum: "18281373737",
         status: "zaiwei",
+        originStatus: "",
         startDate: "",
         endDate: "",
       },
@@ -381,10 +452,16 @@ export default {
       positionList: [],
       pageInfo: {
         currentPage: 1,
-        pageSize: 15,
+        pageSize: 10,
         total: 0,
       },
-      tableData: [],//表格数据
+      pageInfo2: {
+        currentPage: 1,
+        pageSize: 10,
+        total: 0,
+      },
+      tableData: [],// 人员表格数据
+      tableData2: [], // 不在位表格数据
       detailList: {
         list1: [
           { discript: "请假次数", value: 12 },
@@ -425,12 +502,12 @@ export default {
         ],
         department: [{ required: true, message: "请选择", trigger: "blur" }],
       },
+      selectedRow:{},//当前选中列
     };
   },
   mixins: [statusMixin],
   created() {
     this.getTableData(this.pageInfo.currentPage);
-
     this.$http.getDepartment().then((res) => {
       if (res.code == 200) {
         this.departmentList = res.data.data;
@@ -455,8 +532,16 @@ export default {
   },
   methods: {
     handleEdit(index, row) {
-      console.log(index, row);
       this.editVisible = true;
+      this.editForm = {
+        userName: row.userName,
+        userCode: row.userCode,
+        phoneNum: row.phoneNum,
+        status: row.status,
+        originStatus: row.status,
+        startDate: "",
+        endDate: "",
+      }
     },
     handleView(index, row) {
       console.log(index, row);
@@ -469,7 +554,24 @@ export default {
     publishEditForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          console.log("tijiao");
+          this.$http.editUserStatus({
+            targetUserCode: this.editForm.userCode,
+            targetUserName: this.editForm.userName,
+            startTime: this.editForm.startDate ? this.$moment(this.editForm.startDate).startOf().format("YYYY-MM-DD HH:mm:ss") : null,
+            endTime: this.editForm.endDate ? this.$moment(this.editForm.endDate).endOf().format("YYYY-MM-DD HH:mm:ss") : null,
+            originStatus: this.editForm.originStatus,
+            changeStatus: this.editForm.status,
+          }).then(res => {
+            if(res.code == 200) {
+              this.$message({
+                message: "提交成功",
+                type: "success",
+                duration: 2000,
+              });
+              this.resetEditForm('editForm');
+              this.getTableData(this.currentPage);
+            }
+          })
         }
       });
     },
@@ -506,14 +608,28 @@ export default {
       });
     },
     getTableData(currentPage) {
-      this.$http
-        .findAllByPage({
+      this.loading = true;
+      this.$http.findAllByPage({
           pageNum: currentPage,
           pageSize: this.pageInfo.pageSize,
+        }).then((res) => {
+          this.loading = false;
+          if (res.code == 200) {
+            this.tableData = res.data.datalist ? res.data.datalist.result : [];
+            this.pageInfo.total = res.data.datalist ? res.data.datalist.total : 0;
+          }
+        });
+    },
+    // 不在位记录查询
+    getTableData2(currentPage) {
+      this.$http.findRecordByPage({
+          pageNum: currentPage,
+          pageSize: this.pageInfo.pageSize,
+          userCode: this.selectedRow.userCode
         })
         .then((res) => {
           if (res.code == 200) {
-            this.tableData = res.data.datalist ? res.data.datalist.result : [];
+            this.tableData2 = res.data.datalist ? res.data.datalist.result : [];
             this.pageInfo.total = res.data.datalist ? res.data.datalist.total : 0;
           }
         });
@@ -521,6 +637,44 @@ export default {
     handleCurrentChange(val) {
       this.pageInfo.currentPage = val;
       this.getTableData(val);
+    },
+    handleCurrentChange2(val) {
+      this.pageInfo2.currentPage = val;
+      this.getTableData2(val);
+    },
+    handleViewZaiWei(row) {
+      this.zaiWeiVisible = true;
+      this.selectedRow = row;
+      this.getTableData2(this.pageInfo2.currentPage);
+    },
+    handleDeleteRecord(row) {
+      if(this.checkTimeIsPassed(row.startTime)) {
+        return;
+      } 
+      this.$confirm("是否确认删除本条数据", "删除", {
+          cancelButtonText: "取消",
+          confirmButtonText: "确认",
+          type: "warning",
+        }).then(() => {
+          // 网络请求
+          this.$http.deletRecordById(row.recordId).then(res => {
+            if(res.code == 200) {
+              this.$message({
+                type: "success",
+                message: "删除成功",
+                duration: 2000,
+              });
+              this.getTableData2(this.pageInfo2.currentPage);
+            }
+          })
+      });
+    },
+    checkTimeIsPassed(startTime) {
+      if(new Date() >= new Date(startTime)) {
+        return true;
+      } else {
+        return false;
+      }
     },
   },
 };
@@ -603,6 +757,15 @@ export default {
         }
       }
     }
+  }
+
+  .publish {
+    color: #bbbbbb;
+  }
+
+  .draft {
+    color: #3894ff;
+    cursor: pointer;
   }
 }
 </style>

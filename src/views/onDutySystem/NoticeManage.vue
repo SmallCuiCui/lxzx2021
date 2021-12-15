@@ -8,7 +8,7 @@
     </el-row>
 
     <el-row style="margin-top: 10px">
-      <el-table :data="tableData" border style="width: 100%">
+      <el-table :data="tableData" border style="width: 100%" v-loading="loading">
         <el-table-column prop="index" label="序号" width="80">
           <template #default="scope">
             <span>{{(pageInfo.currentPage - 1) * pageInfo.pageSize + scope.$index + 1}}</span>
@@ -135,6 +135,7 @@ export default {
   data() {
     return {
       addModalVisible: false,
+      loading: false,
       pageInfo: {
         currentPage: 1,
         pageSize: 15,
@@ -147,52 +148,7 @@ export default {
         whetherScreen: false,
         noticeContent: "",
       },
-      tableData: [
-        {
-          index: 1,
-          noticeTitle: "标题1",
-          noticeContent: "工作内容xxxx",
-          isPublish: false,
-          whetherScreen: false,
-          publishTime: "2016-05-03 15:05:24",
-          createName: "王小虎",
-          createCode: "王虎",
-          createTime: "2016-05-03 15:05:24",
-        },
-        {
-          index: 2,
-          noticeTitle: "标题1",
-          noticeContent: "工作内容xxxx",
-          isPublish: false,
-          whetherScreen: true,
-          publishTime: "2016-05-03 15:05:24",
-          createName: "王小虎",
-          createCode: "王虎",
-          createTime: "2016-05-03 15:05:24",
-        },
-        {
-          index: 3,
-          noticeTitle: "标题1",
-          noticeContent: "工作内容xxxx",
-          isPublish: true,
-          whetherScreen: false,
-          publishTime: "2016-05-03 15:05:24",
-          createName: "王小虎",
-          createCode: "王虎",
-          createTime: "2016-05-03 15:05:24",
-        },
-        {
-          index: 4,
-          noticeTitle: "标题1",
-          noticeContent: "工作内容xxxx",
-          isPublish: true,
-          whetherScreen: true,
-          publishTime: "2016-05-03 15:05:24",
-          createName: "王小虎",
-          createCode: "王虎",
-          createTime: "2016-05-03 15:05:24",
-        },
-      ],
+      tableData: [],
     };
   },
   created() {
@@ -307,10 +263,12 @@ export default {
       this.addModalVisible = false;
     },
     getTableData(currentPage) {
+      this.loading = true;
       this.$http.findAllNoticeByPage({
           pageNum: currentPage,
           pageSize: this.pageInfo.pageSize,
       }).then(res => {
+        this.loading = false;
         if (res.code == 200) {
             this.tableData = res.data.datalist ? res.data.datalist.result : [];
             this.pageInfo.total = res.data.datalist ? res.data.datalist.total : 0;
