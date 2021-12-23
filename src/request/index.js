@@ -74,7 +74,8 @@ export const editZhiQin = (paramas) => ajax.post(`/schedule/editZhiQin`, paramas
 export const findScheduleByPage = ({...paramas}) => ajax.get(`/schedule/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&type=${paramas.type}`, paramas);
 export const findZhiQinByPage = ({...paramas}) => ajax.get(`/schedule/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&type=${paramas.type}&remark=${paramas.remark}`, paramas);
 export const deletScheduleById = (scheduleId) => ajax.get(`/schedule/deletScheduleById?scheduleId=${scheduleId}`);
-
+export const getThisWeekZhiBan = () => ajax.get(`/schedule/getThisWeekZhiBan`);
+export const scheduleStatistics = () => ajax.get(`/schedule/scheduleStatistics`);
 
 // 获取动态记录
 export const findAllDynamicByPage = ({...paramas}) => ajax.get(`/dynamic/findAllDynamicByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&recordType=${paramas.recordType}`);

@@ -47,16 +47,19 @@
       </el-dialog>
 
       <div class="header_top_userInfo">
-        <el-dropdown trigger="click">
+        <el-dropdown>
           <span class="el-dropdown-link">
             {{ userInfo.userName }}<i class="el-icon-arrow-down el-icon--right"></i>
           </span>
           <template #dropdown>
-            <el-dropdown-menu>
-              <el-dropdown-item>个人信息</el-dropdown-item>
-              <el-dropdown-item @click="dialogVisible = true"
-                >修改密码</el-dropdown-item
-              >
+            <el-dropdown-menu style="padding-bottom: 0;">
+              <p style="line-height: 36px;padding: 0 20px; text-algin: left; font-size: 14px;">账号：<span>{{userInfo.userCode}}</span></p>
+              <p style="line-height: 36px;padding: 0 20px; text-algin: left; font-size: 14px;">电话：<span>{{userInfo.phoneNum}}</span></p>
+              <p style="line-height: 36px;padding: 0 20px; text-algin: left; font-size: 14px;">科室：<span>{{userInfo.deptName}}</span></p>
+              <p style="line-height: 36px;padding: 0 20px; text-algin: left; font-size: 14px;">类别：<span>{{userInfo.positionName}}</span></p>
+              <el-dropdown-item @click="dialogVisible = true" style="text-align: center; padding: 0;">
+                <el-button type="primary" plain style="width: 100%; border: none">修改密码</el-button>
+              </el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>

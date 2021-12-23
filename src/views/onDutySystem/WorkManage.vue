@@ -2,7 +2,6 @@
   <div class="workManage">
     <el-tabs @tab-click="tabChange" v-model="activeName">
       <el-tab-pane label="值班安排" name="first" class="workManage_first">
-        <div class="workManage_first_icon"></div>
         <div class="workManage_first_cards">
           <el-card class="box-card">
             <el-row>
@@ -78,16 +77,16 @@
       <el-tab-pane label="值班统计" name="second">
         <div class="workManage_filters">
           <el-form ref="form" class="filter" :model="filterParams" label-width="80px">
-            <el-form-item label="值班人员" prop="user" style="width: 300px;">
+            <el-form-item label="值班人员" prop="users" style="width: 300px;">
               <el-select
-                v-model="filterParams.user"
+                v-model="filterParams.users"
                 filterable
                 remote
                 multiple
                 reserve-keyword
                 placeholder="请输入姓名"
                 :remote-method="remoteMethodAll"
-                @change="(val)=>handleFilterUser(val)"
+                @change="handleFilterUser"
                 size="mini"
               >
                 <el-option
@@ -100,26 +99,44 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="排序方式">
+            <el-form-item label="排序方式" prop="orderWay">
               <el-select
                 v-model="filterParams.orderWay"
+                @change="handleFilterUser"
                 placeholder="请选择"
                 size="mini"
+                style="width: 100px;"
               >
-                <el-option label="升序" value="shanghai"></el-option>
-                <el-option label="降序" value="beijing"></el-option>
+                <el-option label="升序" value="ASC"></el-option>
+                <el-option label="降序" value="DESC"></el-option>
+              </el-select>
+              <el-select
+                v-model="filterParams.dayType"
+                @change="handleFilterUser"
+                placeholder="请选择"
+                size="mini"
+                style="width: 100px;"
+              >
+                <el-option label="值班总数" value="allZhiBanNum"></el-option>
+                <el-option label="工作日" value="workNum"></el-option>
+                <el-option label="节假日" value="holidayNum"></el-option>
               </el-select>
             </el-form-item>
 
-            <el-form-item label="类别">
+            <!-- <el-form-item label="类别" prop="dayType">
+              
+            </el-form-item> -->
+            <el-form-item label="人员类别" prop="userType">
               <el-select
-                v-model="filterParams.dayType"
+                v-model="filterParams.userType"
+                @change="handleFilterUser"
                 placeholder="请选择"
                 size="mini"
               >
-                <el-option label="全部" value="shanghai"></el-option>
-                <el-option label="工作日" value="beijing"></el-option>
-                <el-option label="节假日" value="beijing"></el-option>
+                <el-option label="全部" value="ALL"></el-option>
+                <el-option label="参谋" value="CANMOU"></el-option>
+                <el-option label="士官" value="SHIGUAN"></el-option>
+                <el-option label="文职" value="WENZHI"></el-option>
               </el-select>
             </el-form-item>
           </el-form>
@@ -318,18 +335,6 @@
               </el-form-item>
             </el-col>
           </el-row>
-
-          <el-row>
-            <el-col :span="24">
-              <el-form-item
-                label="备注:"
-                label-width="100px"
-                prop="remark"
-              >
-                <el-input v-model="formData.remark" placeholder="备注" />
-              </el-form-item>
-            </el-col>
-          </el-row>
       </el-form>
 
       <template #footer>
@@ -390,9 +395,10 @@ export default {
     return {
       activeName: "first",
       filterParams: {
-        user: "",
-        orderWay: "",
-        dayType: "",
+        users: "",
+        orderWay: "DESC",
+        dayType: "allZhiBanNum",
+        userType: "ALL"
       },
       formData: {
         zhuGuan: "",
@@ -403,7 +409,6 @@ export default {
         jiaShiYuan: "",
         lianzhi1: "",
         lianzhi2: "",
-        remark: "",
         startTime: "",
         endTime: "",
       },
@@ -425,61 +430,38 @@ export default {
         total: 0,
       },
       tableData: [],
+      statisticsOriginData: [], //柱状图接口请求数据、过滤采用前端筛选过滤
     };
   },
   mounted() {
-    this.initEcharts();
+    this.myChart = this.$echarts.init(document.getElementById("myChart"));
+    this.initEcharts([], [], []);
     this.getTableData(this.pageInfo.currentPage);
   },
   methods: {
-    initEcharts() {
-      let myChart = this.$echarts.init(document.getElementById("myChart"));
-      myChart.setOption({
+    initEcharts(xData, workDayData, holidayData) {
+      this.myChart.setOption({
+        title: {
+          text: '值班统计分析图',
+          top: '3%'
+        },
         backgroundColor: "#f1f1f1",
         tooltip: {
           show: true,
           trigger: "axis",
         },
-        legend: {
-          left: "right",
-          top: 4,
-        },
         grid: {
           left: "5%",
           right: "5%",
+          top: "15%"
         },
         xAxis: {
           type: "category",
-          data: [
-            "张三",
-            "李四",
-            "王二",
-            "张三",
-            "张三",
-            "李四",
-            "张三",
-            "李四",
-            "王二",
-            "张三",
-            "张三",
-            "李四",
-            "张三",
-            "李四",
-            "王二",
-            "张三",
-            "张三",
-            "李四",
-            "张三",
-            "李四",
-            "王二",
-            "张三",
-            "张三",
-            "李四",
-          ],
+          data: xData,
         },
         // 横向滚动条
         dataZoom: [
-          { show: true, realtime: true, start: 0, end: 50 },
+          { show: xData.length > 12, realtime: true, start: 0, end: 50, height: 25, },
           { type: "inside", realtime: true, start: 0, end: 50 },
         ],
         yAxis: {
@@ -499,10 +481,7 @@ export default {
             name: "工作日",
             type: "bar",
             barWidth: "13",
-            data: [
-              5, 20, 36, 10, 10, 20, 5, 20, 36, 10, 10, 20, 5, 20, 36, 10, 10,
-              20, 5, 20, 36, 10, 10, 20,
-            ],
+            data: workDayData,
             itemStyle: {
               normal: {
                 //设置柱状图颜色渐变
@@ -525,10 +504,7 @@ export default {
             name: "节假日",
             type: "bar",
             barWidth: "13",
-            data: [
-              2, 6, 6, 2, 4, 7, 2, 6, 6, 2, 4, 7, 5, 20, 36, 10, 10, 20, 5, 20,
-              36, 10, 10, 20,
-            ],
+            data: holidayData,
             itemStyle: {
               normal: {
                 //设置柱状图颜色渐变
@@ -549,20 +525,16 @@ export default {
           },
         ],
       });
-
-      this.myChart = myChart;
     },
     tabChange(tab) {
       if (tab.paneName == "second" && this.myChart) {
         this.queryUsers();
-        this.initEcharts();
-        setTimeout(() => {
-          this.myChart.resize();
-        }, 0);
+        this.getAllZhiBanStatistics();
       }
     },
     handleCurrentChange(val) {
       this.pageInfo.currentPage = val;
+      this.getTableData(this.pageInfo.currentPage)
     },
     resetAddForm(formName) {
       this.$refs[formName].resetFields();
@@ -598,13 +570,8 @@ export default {
         jiaShiYuan: this.formData.jiaShiYuan && this.formData.jiaShiYuan.userName,
         lianzhi1: this.formData.lianzhi1 && this.formData.lianzhi1.userName,
         lianzhi2: this.formData.lianzhi2 && this.formData.lianzhi2.userName,
-        remark: this.formData.remark,
         startTime: this.formData.startTime ? this.$moment(this.formData.startTime).startOf("day").format("YYYY-MM-DD HH:mm:ss") : "",
         endTime: this.formData.endTime ? this.$moment(this.formData.endTime).endOf("day").format("YYYY-MM-DD HH:mm:ss") : "",
-      }
-      if(params.zhuGuanId == params.lingDaoId) {
-        this.$message({ message: "在位主官与值班领导不能为同一人！", type: "waring", duration: 2000});
-        return;
       }
       if(params.zhiBanYuanId == params.beiBanYuanId) {
         this.$message({ message: "值班员与备班员不能为同一人！", type: "warning", duration: 2000});
@@ -648,6 +615,18 @@ export default {
           console.log(res.message);
         }
       });
+    },
+    // 接口获取柱状图数据
+    getAllZhiBanStatistics() {
+      this.$http.scheduleStatistics().then(res => {
+        if(res.code == 200) {
+          if(res.data && res.data.data) {
+            this.statisticsOriginData = res.data.data;
+            var sortData = this.statisticsOriginData.sort(this.compare(this.filterParams.dayType, this.filterParams.orderWay == "ASC"))
+            this.filterEchartData(sortData);
+          }
+        }
+      })
     },
     handleAdd() {
       this.queryUsers();
@@ -783,8 +762,51 @@ export default {
         this.options = this.personOptions
       }
     },
-    handleFilterUser(val) {
-      console.log(val)
+    // 柱状图条件过滤
+    handleFilterUser() {
+      console.log(this.filterParams)
+      // 根据选中人员过滤
+      var filterData;
+      if(this.filterParams.users.length == 0) {
+        filterData = this.statisticsOriginData;
+      } else {
+        filterData = this.statisticsOriginData.filter(item => {
+          return this.filterParams.users.includes(item.userCode);
+        })
+      }
+
+      // 人员类别
+      if(this.filterParams.userType != "ALL") {
+        filterData = filterData.filter(item => {
+          return item.positionId == this.filterParams.userType;
+        })
+      }
+      // 排序方式 + 类别  过滤
+      filterData = filterData.sort(this.compare(this.filterParams.dayType, this.filterParams.orderWay == "ASC"));
+      
+      this.filterEchartData(filterData);
+    },
+    filterEchartData(datalist) {
+      var xData = [], workDayData = [], holidayData = [], allData = [];
+      datalist.forEach(item => {
+        xData.push(item.userName);
+        workDayData.push(item.workNum);
+        holidayData.push(item.holidayNum);
+        allData.push(item.allZhiBanNum);
+      })
+      this.initEcharts(xData, workDayData, holidayData);
+      setTimeout(() => {
+        this.myChart.resize();
+      }, 0);
+    },
+    // 排序方法，ascTag为true则升序
+    compare(property, ascTag){
+        return function(a,b){
+            var value1 = a[property];
+            var value2 = b[property];
+            console.log(property, ascTag)
+            return ascTag ? (value1 - value2) : (value2 - value1);
+        }
     }
   },
 };

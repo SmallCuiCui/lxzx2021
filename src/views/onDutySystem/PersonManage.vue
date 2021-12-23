@@ -569,7 +569,7 @@ export default {
                 duration: 2000,
               });
               this.resetEditForm('editForm');
-              this.getTableData(this.currentPage);
+              this.getTableData(this.pageInfo.currentPage);
             }
           })
         }
