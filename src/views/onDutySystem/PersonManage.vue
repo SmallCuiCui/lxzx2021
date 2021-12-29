@@ -41,12 +41,9 @@
 
         <el-table-column label="操作" width="180">
           <template #default="scope">
-            <span @click="handleEdit(scope.$index, scope.row)" class="edit"
-              >编辑</span
-            >
-            <span @click="handleView(scope.$index, scope.row)" class="edit"
-              >查看</span
-            >
+            <span @click="handleEdit(scope.$index, scope.row)" class="edit">编辑</span>
+            <span @click="handleDelete(scope.row)" class="edit">删除</span>
+            <span @click="handleView(scope.$index, scope.row)" class="edit">查看</span>
           </template>
         </el-table-column>
         <el-table-column prop="statistics" label="不在位状态记录">
@@ -185,67 +182,70 @@
 
     <el-dialog
       v-model="detailVisible"
-      title="王小虎(在位)"
+      :title="selectedRow.userName + '(' + statusMap(selectedRow.status)+ ')'"
       class="PersonManage_detail"
     >
       <el-row class="PersonManage_detail_row">
         <el-col :span="4" class="PersonManage_detail_head">
-          <span>2021年</span>
+          <span>{{new Date().getFullYear()}}</span>年
         </el-col>
         <el-col :span="20" class="PersonManage_detail_cellBox">
-          <div
-            class="PersonManage_detail_cellBox_cell"
-            v-for="(item, index) in detailList.list1"
-            :key="index"
-          >
-            {{ item.discript }}：{{ item.value }}天
-          </div>
+          <div class="PersonManage_detail_cellBox_cell">请假天数：{{detailData.qingJiaNum ? detailData.qingJiaNum : 0}} 天</div>
+          <div class="PersonManage_detail_cellBox_cell">值班天数：{{detailData.zhiBanNum ? detailData.zhiBanNum : 0}} 天</div>
+          <div class="PersonManage_detail_cellBox_cell">出差天数：{{detailData.chuChaiNum ? detailData.chuChaiNum : 0}} 天</div>
+          <div class="PersonManage_detail_cellBox_cell">轮休天数：{{detailData.lunXiuNum ? detailData.lunXiuNum : 0}} 天</div>
+          <div class="PersonManage_detail_cellBox_cell">休假天数：{{detailData.xiuJiaNum ? detailData.xiuJiaNum : 0}} 天</div>
+          <div class="PersonManage_detail_cellBox_cell">假期剩余：{{detailData.jiaQiRemain ? detailData.jiaQiRemain : 0}} 天</div>
         </el-col>
       </el-row>
 
       <div class="PersonManage_detail_row" style="margin: 20px 0">
         <el-col :span="4" class="PersonManage_detail_head">
-          <span>请假情况</span>
+          <span>不在位情况</span>
         </el-col>
         <el-col :span="20" class="PersonManage_detail_cellBlock">
           <el-scrollbar :always="true">
             <div style="display: flex">
               <div
                 class="PersonManage_detail_cellBlock_cell"
-                v-for="(item, index) in detailList.list2"
+                v-for="(item, index) in notZaiWeiList"
                 :key="index"
               >
-                <h4>{{ item.discript }}</h4>
-                <p>{{ item.value }}</p>
+                <h4>{{ item.startTime.slice(0, 10) + "至" + item.endTime.slice(0, 10) }}</h4>
+                <p>{{ item.dayNum + "天" }}</p>
               </div>
             </div>
           </el-scrollbar>
+          <div v-if="notZaiWeiList.length == 0" class="PersonManage_detail_cellBlock_noData">暂无记录</div>
         </el-col>
       </div>
 
       <div class="PersonManage_detail_row">
         <el-col :span="4" class="PersonManage_detail_head2">
-          <span>值班情况(24天)<br />工 作 日：4周<br />非工作日：2天</span>
+          <span>值班情况({{detailData.zhiBanNum ? detailData.zhiBanNum : 0}}天)
+            <br />工 作 日：{{detailData.workZbDay ? detailData.workZbDay : 0}}天
+            <br />非工作日：{{detailData.festivalZbDay ? detailData.festivalZbDay : 0}}天</span>
         </el-col>
         <el-col :span="20" class="PersonManage_detail_cellBlock">
           <el-scrollbar :always="true">
             <div style="display: flex">
               <div
                 class="PersonManage_detail_cellBlock_cell"
-                v-for="(item, index) in detailList.list3"
+                v-for="(item, index) in zhiBanList"
                 :key="index"
               >
-                <h4>{{ item.discript }}</h4>
-                <p>{{ item.value }}</p>
+                <h4>{{ item.startTime.slice(0, 10) + "至" + item.endTime.slice(0, 10) }}</h4>
+                <p>{{ item.dayNum}}<span>{{item.weekday ? " 天" : " 天(节假日)"}}</span></p>
               </div>
             </div>
           </el-scrollbar>
+          <div v-if="notZaiWeiList.length == 0" class="PersonManage_detail_cellBlock_noData">暂无记录</div>
         </el-col>
       </div>
 
       <template #footer>
         <span class="dialog-footer">
-          <el-button type="primary" @click="detailVisible = false"
+          <el-button type="primary" @click="handleDetailOk()"
             >确认</el-button
           >
         </span>
@@ -462,31 +462,9 @@ export default {
       },
       tableData: [],// 人员表格数据
       tableData2: [], // 不在位表格数据
-      detailList: {
-        list1: [
-          { discript: "请假次数", value: 12 },
-          { discript: "值班次数", value: 12 },
-          { discript: "休假天数", value: 12 },
-          { discript: "出差次数", value: 12 },
-          { discript: "在位天数", value: 12 },
-          { discript: "假期剩余", value: 12 },
-        ],
-        list2: [
-          { discript: "2021.10.19-2021.10.21", value: "2天" },
-          { discript: "2021.10.07-2021.10.08", value: "2天" },
-          { discript: "2021.09.12-2021.09.13", value: "2天" },
-          { discript: "2021.09.12-2021.09.13", value: 12 },
-          { discript: "2021.09.12-2021.09.13", value: 12 },
-        ],
-        list3: [
-          { discript: "2021年第12周", value: "1周" },
-          { discript: "2021.10.02-2021.10.03", value: "2天(节假日)" },
-          { discript: "2021年第12周", value: "1周" },
-          { discript: "2021年第12周", value: "1周" },
-          { discript: "2021年第12周", value: "1周" },
-          { discript: "假期剩余", value: 12 },
-        ],
-      },
+      detailData: {}, // 在位统计
+      notZaiWeiList: [],
+      zhiBanList: [],
       addRules: {
         userName: [
           { required: true, message: "请输入姓名", trigger: "blur" },
@@ -543,9 +521,42 @@ export default {
         endDate: "",
       }
     },
+    handleDelete(row) {
+      this.$confirm("是否确认删除本条数据", "删除", {
+          cancelButtonText: "取消",
+          confirmButtonText: "确认",
+          type: "warning",
+        }).then(() => {
+          // 网络请求
+          this.$http.deleteUser(row.userId).then(res => {
+            if(res.code == 200) {
+              this.$message({
+                type: "success",
+                message: "删除成功",
+                duration: 2000,
+              });
+              this.getTableData(this.pageInfo.currentPage);
+            }
+          })
+        });
+    },
     handleView(index, row) {
-      console.log(index, row);
       this.detailVisible = true;
+      this.selectedRow = row;
+      this.$http.queryUserDetail(row.userCode).then(res => {
+        console.log(res)
+        if(res.code == 200) {
+          this.detailData = res.data.data.detailData ? res.data.data.detailData : {};
+          this.notZaiWeiList = res.data.data.zaiWeiList;
+          this.zhiBanList = res.data.data.scheduleList;
+        }
+      })
+    },
+    handleDetailOk() {
+      this.detailVisible = false;
+      this.detailData = {}; // 在位统计
+      this.notZaiWeiList = [];
+      this.zhiBanList = [];
     },
     resetEditForm(formName) {
       this.$refs[formName].resetFields(formName);
@@ -703,12 +714,11 @@ export default {
       border: 1px solid #e0e3ea;
       border-top: none;
       border-right: none;
-      height: 80px;
       overflow: hidden;
+      display: flex;
     }
 
     &_head {
-      height: 80px;
       line-height: 80px;
       border-right: 1px solid #e0e3ea;
       border-top: 1px solid #e0e3ea;
@@ -717,8 +727,7 @@ export default {
     }
 
     &_head2 {
-      height: 80px;
-      padding-top: 10px;
+      padding: 10px 0;
       line-height: 20px;
       border-right: 1px solid #e0e3ea;
       border-top: 1px solid #e0e3ea;
@@ -731,6 +740,7 @@ export default {
     &_cellBox {
       display: flex;
       flex-wrap: wrap;
+      width: 100%;
       &_cell {
         width: 33.334%;
         height: 40px;
@@ -742,6 +752,8 @@ export default {
     }
 
     &_cellBlock {
+      height: 100%;
+      overflow: hidden;
       &_cell {
         width: 33.33%;
         display: inline-block;
@@ -755,6 +767,15 @@ export default {
           border-top: 1px solid #e0e3ea;
           text-align: center;
         }
+      }
+
+      &_noData{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-top: 1px solid #e0e3ea;
+        border-right: 1px solid #e0e3ea;
+        line-height: 80px;
       }
     }
   }

@@ -45,7 +45,9 @@ export const changePassword = ({...paramas}) => ajax.post("/user/changePassword"
 export const loginOut = () => ajax.get("/user/loginOut")
 export const findAllByPage = ({...paramas}) => ajax.get(`/user/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}`)
 export const findUserByDeptId = (deptId) => ajax.get(`/user/findUserByDeptId?deptId=${deptId}`)
+export const deleteUser = (userId) => ajax.get(`/user/deleteUser?userId=${userId}`)
 export const editUserStatus = ({...paramas}) => ajax.post("/user/editUserStatus", paramas)
+export const queryUserDetail = (userCode) => ajax.get(`/user/queryUserDetail?userCode=${userCode}`)
 
 // 获取单位列表、权限列表、职务列表
 export const getDepartment = () => ajax.get("/common/getDepartment");
