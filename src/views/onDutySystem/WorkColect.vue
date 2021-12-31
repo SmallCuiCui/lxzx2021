@@ -145,7 +145,7 @@ export default {
         // 前面插入数据
         this.danweiList.unshift({
           value: "all",
-          name: "全部",
+          name: "所有单位",
         })
       }
     })

@@ -85,3 +85,9 @@ export const findAllDynamicByPage = ({...paramas}) => ajax.get(`/dynamic/findAll
 // 不在位记录
 export const findRecordByPage = ({...paramas}) => ajax.get(`/zaiWeiRecord/findAllByPage?pageNum=${paramas.pageNum}&pageSize=${paramas.pageSize}&userCode=${paramas.userCode}`, paramas);
 export const deletRecordById = (zwRecordId) => ajax.get(`/zaiWeiRecord/deletRecordById?zwRecordId=${zwRecordId}`);
+
+// 大事记
+export const addAndEditEvent = ({...paramas}) => ajax.post("/maiorEvent/addAndEditEvent", paramas);
+export const deleteEventById = (eventId) => ajax.get(`/maiorEvent/deleteEventById?eventId=${eventId}`);
+export const findEventByPage = ({...paramas}) => ajax.get(`/maiorEvent/findEventByPage?pageNum=${paramas.currentPage}${paramas.startT ? '&startT=' + paramas.startT : ''}${paramas.endT ? '&endT=' + paramas.endT : ''}${paramas.searchValue ? '&searchValue=' + paramas.searchValue : ''}`);
+export const lockEventById = (eventId) => ajax.get(`/maiorEvent/lockEventById?eventId=${eventId}`);
