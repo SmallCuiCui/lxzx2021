@@ -42,7 +42,7 @@
                 <div style="font-size: 20px; display: flex; width: 120px; justify-content: space-around;">
                   <i class="el-icon-edit-outline" @click="handleEditEvent(item)" :style="{color: item.lock ? '#C0C4CC' : '#409EFF', cursor: 'pointer'}"></i>
                   <i class="el-icon-delete" @click="handleDelete(item)" :style="{color: item.lock ? '#C0C4CC' : '#409EFF', cursor: 'pointer'}"></i>
-                  <i class="el-icon-download" style="color: #409EFF; cursor: pointer;"></i>
+                  <i class="el-icon-download" @click="handleDownLoad(item.fileURL)" style="color: #409EFF; cursor: pointer;"></i>
                   <i 
                     @click="handleLockEvent(item)"
                     :class="item.lock ? 'el-icon-lock' : 'el-icon-unlock'" 
@@ -73,6 +73,32 @@
                 :clearable="false"
                 value-format="YYYY-MM-DD"
               ></el-date-picker>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              label="上传文件："
+              label-width="100px"
+              prop="fileURL"
+            >
+              <el-upload
+                class="upload-demo"
+                accept=".doc,.docx,.pdf,image/*"
+                :action="this.localhostPath + '/api/common/upload'"
+                multiple
+                :limit="1"
+                :on-exceed="handleExceed"
+                :file-list="formData.fileList"
+                :on-change="handleFileChange"
+                :on-remove="handleRmove"
+              >
+                <el-button type="primary">点击选择文件</el-button>
+                <!-- <template #tip>
+                  <div class="el-upload__tip">
+                    可以上传文件类型：.doc、.docx、.pdf和图片
+                  </div>
+                </template> -->
+              </el-upload>
             </el-form-item>
           </el-col>
         </el-row>
@@ -124,7 +150,9 @@ export default {
       dialogFormVisible: false,
       dialogTitle: "",
       currentPage: 1,
-      formData: {},
+      formData: {
+        fileList: []
+      },
       timeRange: [], // 删选时间区间
       timeLineData: [],
       shortcuts: [
@@ -156,11 +184,17 @@ export default {
           },
         },
       ],
-      selectedRow: {}
+      selectedRow: {},
+      localhostPath: ""
     };
   },
   created() {
     this.getTimeLineData();
+    // 获取协议、地址、端口号，上传文件需要
+    let curWwwPath = window.document.location.href;
+    let pathName = window.document.location.pathname;
+    let pos = curWwwPath.indexOf(pathName);
+    this.localhostPath = curWwwPath.substring(0, pos);
   },
   watch: {
     searchValue(newValue) {
@@ -195,6 +229,8 @@ export default {
     handleAddEvent() {
       this.dialogTitle = "新增大事记";
       this.selectedRow = {};
+      this.formData = {};
+      this.formData.fileList = [];
       this.dialogFormVisible = true;
     },
     saveEvent() {
@@ -210,9 +246,11 @@ export default {
         ElMessage({message: '时间不能为空', type: 'warning',});
         return;
       }
+      delete this.formData.fileList;
       this.$http.addAndEditEvent({
         ...this.selectedRow,
         ...this.formData,
+        fileURL: this.formData.fileURL && this.formData.fileURL,
         eventDate: this.$moment(this.formData.eventDate).format("YYYY-MM-DD HH:mm:ss")
       }).then(res => {
         if(res.code == 200) {
@@ -222,6 +260,11 @@ export default {
           this.getTimeLineData2();
         }
       })
+    },
+    handleDownLoad(fileURL) {
+      if(fileURL) {
+        window.open("api/common/download?fileFullName=" + fileURL);
+      }
     },
     handleDelete(row) {
       if (row.lock) {
@@ -270,19 +313,56 @@ export default {
       }
     },
     handleEditEvent(row) {
+      if (row.lock) {
+        return;
+      }
       this.selectedRow = row;
+      var fileList = [];
+      if(row.fileURL) {
+        var obj = {
+          name: row.fileURL.split("/")[2],
+          url: row.fileURL
+        }
+        fileList.push(obj)
+      }
       this.formData = {
         title: row.title,
         content: row.content,
-        eventDate: row.eventDate
+        eventDate: row.eventDate,
+        fileURL: row.fileURL,
+        fileList,
       }
       this.dialogTitle = "编辑大事记"
       this.dialogFormVisible = true;
     },
     loadMoreEvent() {
       this.currentPage ++;
-      console.log(this.currentPage)
       this.getTimeLineData();
+    },
+    handleExceed(fileList) {
+      this.$message({
+        type: "warning",
+        message: `你已选择${fileList.length}个文件，限制上传一个文件`,
+        duration: 2000,
+      });
+    },
+    handleFileChange(fileList) {
+      console.log(fileList)
+      if(fileList.status == "fail") {
+        this.$message({
+          type: "warning",
+          message: `仅支持上传word、图片、PDF格式、且小于10M文件`,
+          duration: 2000,
+        })
+      }else if(fileList.response && fileList.response.success && fileList.response.data && fileList.response.data.data){
+        this.formData.fileURL = fileList.response.data.data.filePath
+        this.formData.fileName = fileList.response.data.data.fileName
+      }
+    },
+    handleRmove(file, fileList) {
+      if(fileList.length == 0) {
+        this.formData.fileURL = ""
+      }
     }
   },
 };

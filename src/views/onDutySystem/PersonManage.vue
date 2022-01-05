@@ -2,10 +2,7 @@
   <div class="PersonManage">
     <el-row>
       <el-col :span="21">
-        在位：<span>{{ personSituaton.zaiwei }}</span> 请假：<span>{{
-          personSituaton.qingjia
-        }}</span>
-        借调：<span>{{ personSituaton.jiediao }}</span>
+        <span v-for="(item, index) in statistics" :key="index" style="margin-right: 20px;">{{item.name + ": " + item.value + "人" }}</span>
       </el-col>
       <el-col :span="3">
         <img
@@ -53,7 +50,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-pagination
+      <!-- <el-pagination
         background
         layout="prev, pager, next, total"
         :total="pageInfo.total"
@@ -62,7 +59,7 @@
         @current-change="handleCurrentChange"
         style="margin-top: 15px"
       >
-      </el-pagination>
+      </el-pagination> -->
     </el-row>
 
     <el-dialog v-model="editVisible" title="人员管理">
@@ -452,7 +449,7 @@ export default {
       positionList: [],
       pageInfo: {
         currentPage: 1,
-        pageSize: 10,
+        pageSize: 100,
         total: 0,
       },
       pageInfo2: {
@@ -481,6 +478,7 @@ export default {
         department: [{ required: true, message: "请选择", trigger: "blur" }],
       },
       selectedRow:{},//当前选中列
+      statistics: []
     };
   },
   mixins: [statusMixin],
@@ -628,6 +626,28 @@ export default {
           if (res.code == 200) {
             this.tableData = res.data.datalist ? res.data.datalist.result : [];
             this.pageInfo.total = res.data.datalist ? res.data.datalist.total : 0;
+            var nameList = [];
+            this.statistics = [];
+            this.tableData.forEach(item => {
+              var num = nameList.indexOf(this.statusMap(item.status));
+              if(num == -1) {
+                var newObj = {
+                  name: this.statusMap(item.status),
+                  value: 1
+                }
+                if(item.status == "ZAIWEI") {
+                  nameList.unshift(this.statusMap(item.status))
+                  this.statistics.unshift(newObj)
+                } else {
+                  nameList.push(this.statusMap(item.status))
+                  this.statistics.push(newObj)
+                }
+                
+              } else {
+                this.statistics[num].value ++;
+              }
+            })
+            console.log(this.statistics)
           }
         });
     },

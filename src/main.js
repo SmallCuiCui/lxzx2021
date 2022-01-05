@@ -55,5 +55,6 @@ const app = createApp(App);
 app.config.globalProperties.$echarts = echarts;
 app.config.globalProperties.$http = ajax;
 app.config.globalProperties.$moment = moment;
+app.config.globalProperties.$route = router;
 
 app.use(router).use(ElementPlus, {locale: zhCn,}).mount('#app')
